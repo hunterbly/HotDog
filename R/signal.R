@@ -246,7 +246,7 @@ cal_signal_strength <- function(signalName, df, threshold = 0.03){
 
     #Calculate Signal Strength
     number_days	= ncol(df.filtered.high.threshold.return)
-    index.strength = (abs(sum(colProds(df.filtered.high.threshold.return))) - abs(sum(colProds(df.filtered.low.threshold.return)))) * 10000 / number_days
+    index.strength = (abs(sum(matrixStats::colProds(df.filtered.high.threshold.return))) - abs(sum(matrixStats::colProds(df.filtered.low.threshold.return)))) * 10000 / number_days
 
     index.strength
   },error = function(e){

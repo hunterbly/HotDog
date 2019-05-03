@@ -1,3 +1,4 @@
 exportPattern("^[^\\.]")
 import(dplyr)
 import(tidyr)
+import(lazyeval)
