@@ -168,7 +168,7 @@ low_return <- function(df, n) {
 
 eval_signal <- function(signal.list, df){
 
-  df.return <- ldply(signal.list, cal_signal_strength, df)
+  df.return <- plyr::ldply(signal.list, cal_signal_strength, df)
   df.return <- t(df.return)
   colnames(df.return) <- signal.list
   rownames(df.return) <- NULL
@@ -176,6 +176,45 @@ eval_signal <- function(signal.list, df){
   data.frame(df.return)
 
 
+}
+
+
+cal_signal <- function(df){
+
+  if('code' %in% colnames(df)){
+    data <- df %>% filter(volume != 0) %>% arrange(code, date)
+  }
+  else{
+    data <- df %>% filter(volume != 0) %>% arrange(date)
+  }
+
+  data <- data %>% mutate(open.lag1 = lag(open, n = 1),
+                          open.lag2 = lag(open, n = 2),
+                          close.lag1 = lag(close, n = 1),
+                          close.lag2 = lag(close, n = 2))
+
+  data <- data %>% mutate(s_bull_stick = f_bull_stick(open, close),
+                          s_bear_stick = f_bear_stick(open, close),
+                          s_bull_engulf = f_bull_engulf(open, close, open.lag1, close.lag1),
+                          s_bear_engulf = f_bear_engulf(open, close, open.lag1, close.lag1),
+                          s_bull_harami = f_bull_harami(open, close, open.lag1, close.lag1),
+                          s_bear_harami = f_bear_harami(open, close, open.lag1, close.lag1),
+                          s_2day_reverse_good = f_2day_reverse_good(open, close, open.lag1, close.lag1, open.lag2, close.lag2),
+                          s_2day_reverse_bad = f_2day_reverse_bad(open, close, open.lag1, close.lag1, open.lag2, close.lag2),
+                          s_bull_pierce = f_bull_pierce(open, close, open.lag1, close.lag1),
+                          s_bear_pierce = f_bear_pierce(open, close, open.lag1, close.lag1),
+                          s_hammer = f_hammer(open, close, open.lag1, close.lag1, low, high, tail_multiplier = 2, least_body_length = 0.005),
+                          s_shooting_star = f_shooting_star(open, close, open.lag1, close.lag1, low, high, tail_multiplier = 2, least_body_length = 0.005))
+
+
+  for(i in 1:5) {
+    data <- high_return(df = data, n=i)
+    data <-  low_return(df = data, n=i)
+  }
+
+  data %>% arrange(desc(date))
+
+  return(data)
 }
 
 
@@ -221,13 +260,24 @@ cal_signal_strength <- function(signalName, df, threshold = 0.03){
 
 }
 
-get_singal_strength <- function(){
+get_signal_strength <- function(df){
 
+  signal.list <- c('s_bull_stick',
+                   's_bear_stick',
+                   's_bull_engulf',
+                   's_bear_engulf',
+                   's_bull_harami',
+                   's_bear_harami',
+                   's_2day_reverse_good',
+                   's_2day_reverse_bad',
+                   's_bull_pierce',
+                   's_bear_pierce',
+                   's_hammer',
+                   's_shooting_star')
 
+  data.signal <- df %>% nest(-code) %>% mutate(signal = purrr::map(data, ~cal_signal(.)))
 
-  data.signal <- data %>% nest(-code) %>% mutate(signal = map(data, ~cal_signal(.)))
-
-  data.signal.eval <- data.signal %>% mutate(signal.eval = map(signal, ~evalSignal(signal_list, .)))
+  data.signal.eval <- data.signal %>% mutate(signal.eval = purrr::map(signal, ~eval_signal(signal.list, .)))
 
   # get evaluated signal
   signal.result <- data.signal.eval %>% select(code, signal.eval) %>% unnest(signal.eval)
