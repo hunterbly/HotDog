@@ -10,3 +10,8 @@ spaghetti/*
 # exception to the rule
 !spaghetti/.gitkeep
 
+# log
+.log
+
+test.py
+.ftpconfig
