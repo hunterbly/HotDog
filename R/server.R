@@ -1,5 +1,3 @@
-library(HotDog)
-
 pool <- pool::dbPool(
   #drv = RPostgreSQL::PostgreSQL(),
   drv = DBI::dbDriver("PostgreSQL"),

@@ -1,18 +1,60 @@
-get_connection <- function(){
-	pool <- pool::dbPool(
+sql_connection <- function(){
 
-	  drv = RPostgreSQL::PostgreSQL(),
-	  dbname = "stock",
-	  host = "127.0.0.1",
-	  user = "db_user",
-	  password = "P@ssw0rDB",
-	  #password = "",
-	  maxSize = 10,
-	  idleTimeout = 120
+  ## Return connection for remote database
 
-	)
-	pool
+  conn <- DBI::dbConnect(#drv    = DBI::dbDriver("PostgreSQL"),
+                                 drv    = RPostgreSQL::dbDriver("PostgreSQL"),
+                                 dbname = "stock",
+                                 host   = "206.189.149.240",
+                                 port   = 4004,
+                                 user   = "db_user",
+                                 password = 'P@ssw0rDB')
+  return(conn)
+}
+
+
+get_data <- function(sql){
+
+  ### Get data from the provided sql
+
+  conn <- sql_connection()
+
+  res <- data.table(DBI::dbGetQuery(conn, sql))
+
+  DBI::dbDisconnect(conn)
+
+  return(res)
 
 }
 
-# DBI::dbDisconnect(pool
+
+####
+# Function interfaces
+####
+
+
+
+####
+# Not implemented
+####
+
+
+get_pool <- function(){
+
+  ## Try out
+
+  # pool <- pool::dbPool(
+  #
+  #   drv = RPostgreSQL::PostgreSQL(),
+  #   dbname = "stock",
+  #   host = "206.189.149.240",
+  #   user = "db_user",
+  #   port = 4004,
+  #   password = "P@ssw0rDB",
+  #   maxSize = 10,
+  #   idleTimeout = 120
+  #
+  # )
+  # pool
+
+}
