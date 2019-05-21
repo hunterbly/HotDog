@@ -2,18 +2,17 @@ sql_connection <- function(){
 
   ## Return connection for remote database
 
-  conn <- DBI::dbConnect(#drv    = DBI::dbDriver("PostgreSQL"),
-                                 drv    = RPostgreSQL::dbDriver("PostgreSQL"),
-                                 dbname = "stock",
-                                 host   = "206.189.149.240",
-                                 port   = 4004,
-                                 user   = "db_user",
-                                 password = 'P@ssw0rDB')
+  conn <- DBI::dbConnect(drv    = RPostgreSQL::PostgreSQL(),
+                         dbname = "stock",
+                         host   = "206.189.149.240",
+                         port   = 4004,
+                         user   = "db_user",
+                         password = 'P@ssw0rDB')
   return(conn)
 }
 
 
-get_data <- function(sql){
+sql_query <- function(sql){
 
   ### Get data from the provided sql
 
@@ -58,3 +57,4 @@ get_pool <- function(){
   # pool
 
 }
+
