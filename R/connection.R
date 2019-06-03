@@ -29,7 +29,7 @@ sql_query <- function(sql, local = FALSE){
 
   ### Get data from the provided sql
 
-  conn <- sql_connection(connect)
+  conn <- sql_connection(local)
 
   res <- data.table::as.data.table(DBI::dbGetQuery(conn, sql))
 
