@@ -250,7 +250,7 @@ cal_signal_strength <- function(signalName, df, threshold = 0.03){
 
     index.strength
   },error = function(e){
-    message('Error')
+    # message('Error')
     return(0)
   }
   )
