@@ -181,6 +181,17 @@ eval_signal <- function(signal.list, df){
 
 cal_signal <- function(df){
 
+  ## Calculate whether the pre-defined signal is being hit with the corresponding return in the following days
+  ##
+  ## Arg
+  ##  df (Dataframe): Dataframe of the stock data
+  ##
+  ## Return
+  ##  df.singal (Dataframe): Dataframe of the stock data with flag of signal hit and the corresponding return in the following days
+  ##
+  ## Example
+  ##  df.signal = cal_singal(df)
+
   if('code' %in% colnames(df)){
     data <- df %>% filter(volume != 0) %>% arrange(code, date)
   }
@@ -209,7 +220,7 @@ cal_signal <- function(df){
 
   for(i in 1:5) {
     data <- high_return(df = data, n=i)
-    data <-  low_return(df = data, n=i)
+    data <- low_return(df = data, n=i)
   }
 
   data %>% arrange(desc(date))
@@ -218,7 +229,22 @@ cal_signal <- function(df){
 }
 
 
-cal_signal_strength <- function(signalName, df, threshold = 0.03){
+cal_signal_strength <- function(signalName, df.grouped, threshold = 0.03){
+
+  ## Calculate whether the pre-defined signal is being hit with the corresponding return in the following days
+  ##
+  ## Arg
+  ##  SingalName (str): Name of the pre-defined Signal name, e.g. s_bull_stick
+  ##  df.grouped (Dataframe):
+  ##  threshold (num): Percentage of the threshold
+  ##
+  ## Return
+  ##  out (Dataframe):
+  ##
+  ## Example
+  ##
+
+  df <- df.grouped
 
   out <- tryCatch({
     filter_criteria <- interp(~which_column == 1, which_column = as.name(signalName))
