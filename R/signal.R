@@ -357,6 +357,17 @@ get_hit_signal <- function(ref.date, format = 'wide'){
   return(df.signal)
 }
 
-save_hit_signal <- function(df.signal){
+save_hit_signal <- function(df.signal, local = FALSE){
 
+  # Filter out non zero hit and add id column at the front being insert
+  df.signal.nz = df.signal %>% filter(hit != 0)
+  df.signal.nz = cbind(id = NA, df.signal.nz)
+
+  conn <- sql_connection(local)
+
+  DBI::dbWriteTable(conn, c("stock", "signal_history"), df.signal.nz, append = TRUE, row.names = FALSE)
+
+  DBI::dbDisconnect(conn)
+
+  return(NULL)
 }
