@@ -310,7 +310,7 @@ get_signal_strength <- function(df){
 }
 
 
-get_signal <- function(ref.date){
+get_hit_signal <- function(ref.date){
 
   ## Get the signal for the reference date
   ##
@@ -321,7 +321,7 @@ get_signal <- function(ref.date){
   ##  df.signal.filtered (Dataframe): Stock price dataframe with calculated signal in the input date only
   ##
   ## Example:
-  ##   get_signal(ref.date = '2019-06-26')
+  ##   get_hit_signal(ref.date = '2019-06-26')
 
   date.input    = lubridate::ymd(ref.date)
   date.earliest  = date.input - 20
@@ -332,8 +332,10 @@ get_signal <- function(ref.date){
   # Calculate the signal and append to the original data
   df.signal = cal_signal(df.raw)
 
-  # Filter by the input date
-  df.signal.filtered = df.signal %>% filter(date == ref.date)
+  # Filter by the input date and select related column only
+  df.signal.filtered = df.signal %>%
+                        select(c('date', 'code'), starts_with('s_')) %>%    # select signal column only
+                        filter(date == date.input)
 
   return(df.signal.filtered)
 }
