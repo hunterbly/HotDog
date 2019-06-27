@@ -347,7 +347,8 @@ get_hit_signal <- function(ref.date, format = 'wide'){
 
     # Return wide format
 
-    df.signal = reshape2::melt(df.signal.filtered, id.vars=c("date", "code"), value.name = "signal")
+    df.signal = reshape2::melt(df.signal.filtered, id.vars=c("date", "code"), na.rm = TRUE)
+    colnames(df.signal) <- c('date', 'code', 'signal', 'hit')
 
   }else{
     stop_quietly(sprintf("Data format - %s is no supported ", format))
