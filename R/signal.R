@@ -333,7 +333,7 @@ get_signal <- function(ref.date){
   df.signal = cal_signal(df.raw)
 
   # Filter by the input date
-  df.signal.filtered = df.signal %>% filter(date == date.input)
+  df.signal.filtered = df.signal %>% filter(date == ref.date)
 
   return(df.signal.filtered)
 }
