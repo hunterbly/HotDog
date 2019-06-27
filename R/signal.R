@@ -308,3 +308,32 @@ get_signal_strength <- function(df){
   # get evaluated signal
   signal.result <- data.signal.eval %>% select(code, signal.eval) %>% unnest(signal.eval)
 }
+
+
+get_signal <- function(ref.date){
+
+  ## Get the signal for the reference date
+  ##
+  ## Args:
+  ##  ref.date (str): Date in YYYY-MM-DD format, e.g. 2018-01-01
+  ##
+  ## Returns:
+  ##  df.signal.filtered (Dataframe): Stock price dataframe with calculated signal in the input date only
+  ##
+  ## Example:
+  ##   get_signal(ref.date = '2019-06-26')
+
+  date.input    = lubridate::ymd(ref.date)
+  date.earliest  = date.input - 20
+
+  query = sprintf("SELECT * FROM STOCK WHERE DATE >= '%s' AND DATE <= '%s'", date.earliest, date.input)
+  df.raw = sql_query(query)
+
+  # Calculate the signal and append to the original data
+  df.signal = cal_signal(df.raw)
+
+  # Filter by the input date
+  df.signal.filtered = df.signal %>% filter(date == date.input)
+
+  return(df.signal.filtered)
+}
