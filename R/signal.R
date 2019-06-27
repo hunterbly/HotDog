@@ -310,15 +310,16 @@ get_signal_strength <- function(df){
 }
 
 
-get_hit_signal <- function(ref.date){
+get_hit_signal <- function(ref.date, format = 'wide'){
 
-  ## Get the signal for the reference date
+  ## Get the signal for the reference date with long or wide format
   ##
   ## Args:
   ##  ref.date (str): Date in YYYY-MM-DD format, e.g. 2018-01-01
+  ##  format (str): Wide or Long format of the output, e.g. c('wide', 'long')
   ##
   ## Returns:
-  ##  df.signal.filtered (Dataframe): Stock price dataframe with calculated signal in the input date only
+  ##  df.signal (Dataframe): Stock price dataframe with calculated signal in the input date only
   ##
   ## Example:
   ##   get_hit_signal(ref.date = '2019-06-26')
@@ -330,12 +331,31 @@ get_hit_signal <- function(ref.date){
   df.raw = sql_query(query)
 
   # Calculate the signal and append to the original data
-  df.signal = cal_signal(df.raw)
+  df.signal.all = cal_signal(df.raw)
 
   # Filter by the input date and select related column only
-  df.signal.filtered = df.signal %>%
+  df.signal.filtered = df.signal.all %>%
                         select(c('date', 'code'), starts_with('s_')) %>%    # select signal column only
                         filter(date == date.input)
 
-  return(df.signal.filtered)
+  if(format == 'wide'){
+
+    # Return wide format
+    df.signal = df.signal.filtered
+
+  }else if(format == 'long'){
+
+    # Return wide format
+
+    df.signal = reshape2::melt(df.signal.filtered, id.vars=c("date", "code"), value.name = "signal")
+
+  }else{
+    stop_quietly(sprintf("Data format - %s is no supported ", format))
+  }
+
+  return(df.signal)
+}
+
+save_hit_signal <- function(df.signal){
+
 }
