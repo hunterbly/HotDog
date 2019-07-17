@@ -310,7 +310,7 @@ get_signal_strength <- function(df){
 }
 
 
-get_hit_signal <- function(ref.date, format = 'wide'){
+get_hit_signal <- function(ref.date, format = 'wide', local = FALSE){
 
   ## Get the signal for the reference date with long or wide format
   ##
@@ -328,7 +328,7 @@ get_hit_signal <- function(ref.date, format = 'wide'){
   date.earliest  = date.input - 20
 
   query = sprintf("SELECT * FROM STOCK WHERE DATE >= '%s' AND DATE <= '%s'", date.earliest, date.input)
-  df.raw = sql_query(query)
+  df.raw = sql_query(query, local)
 
   # Calculate the signal and append to the original data
   df.signal.all = cal_signal(df.raw)
