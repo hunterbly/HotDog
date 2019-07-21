@@ -310,7 +310,7 @@ get_signal_strength <- function(df){
 }
 
 
-get_hit_signal <- function(ref.date, format = 'wide', local = FALSE){
+get_hit_signal <- function(ref.date, format = 'wide'){
 
   ## Get the signal for the reference date with long or wide format
   ##
@@ -328,7 +328,7 @@ get_hit_signal <- function(ref.date, format = 'wide', local = FALSE){
   date.earliest  = date.input - 20
 
   query = sprintf("SELECT * FROM STOCK WHERE DATE >= '%s' AND DATE <= '%s'", date.earliest, date.input)
-  df.raw = sql_query(query, local)
+  df.raw = sql_query(query)
 
   # Calculate the signal and append to the original data
   df.signal.all = cal_signal(df.raw)
@@ -357,12 +357,12 @@ get_hit_signal <- function(ref.date, format = 'wide', local = FALSE){
   return(df.signal)
 }
 
-save_hit_signal <- function(df.signal, local = FALSE){
+save_hit_signal <- function(df.signal){
 
   # Filter out non zero hit and add id column at the front being insert
   df.signal.nz = df.signal %>% filter(hit != 0)
 
-  conn <- sql_connection(local)
+  conn <- sql_connection()
 
   DBI::dbWriteTable(conn, "signal_history", df.signal.nz, append = TRUE, row.names = FALSE)
 

@@ -1,9 +1,8 @@
-sql_connection <- function(local = FALSE){
+sql_connection <- function(){
 
   ## Return connection for remote database
   ##
   ## Arg
-  ##  local (bool): Boolean flag to indicate whether the connection is using Local or Remote IP
   ##
   ## Return
   ##  conn (PostgreSQLConnection): PSQL connection
@@ -12,37 +11,39 @@ sql_connection <- function(local = FALSE){
   ##  conn = sql_connection
   ##  DBI::dbDisconnect(conn)
 
-  if(local == TRUE){
 
-    conn <- DBI::dbConnect(drv    = RPostgreSQL::PostgreSQL(),
-                           dbname = "stock",
-                           host   = "localhost",
-                           port   = 4004,
-                           user   = "db_user",
-                           password = 'P@ssw0rDB')
+  conn <-  tryCatch(
+    {
+      # local
+      DBI::dbConnect(drv    = RPostgreSQL::PostgreSQL(),
+                     dbname = "stock",
+                     host   = "localhost",
+                     port   = 4004,
+                     user   = "db_user",
+                     password = 'P@ssw0rDB')
+    },
+    error = function(e){
+      # Remote
+      DBI::dbConnect(drv    = RPostgreSQL::PostgreSQL(),
+                     dbname = "stock",
+                     host   = "206.189.149.240",
+                     port   = 4004,
+                     user   = "db_user",
+                     password = 'P@ssw0rDB')
 
-  } else{
-    # Remote
-    conn <- DBI::dbConnect(drv    = RPostgreSQL::PostgreSQL(),
-                           dbname = "stock",
-                           host   = "206.189.149.240",
-                           port   = 4004,
-                           user   = "db_user",
-                           password = 'P@ssw0rDB')
-
-  }
+    }
+  )
 
   return(conn)
 }
 
 
-sql_query <- function(sql, local = FALSE){
+sql_query <- function(sql){
 
   ## Get data from the provided sql
   ##
   ## Arg
   ##  sql (str): SQL statement
-  ##  local (bool): Boolean flag to indicate whether the connection is using Local or Remote IP
   ##
   ## Return
   ##  res (Dataframe): Dataframe of the result of the query statement
@@ -51,7 +52,7 @@ sql_query <- function(sql, local = FALSE){
   ##  df <- sql_query("select * from stock where date >= '2019-06-01' order by date desc")
   ##
 
-  conn <- sql_connection(local)
+  conn <- sql_connection()
 
   res <- as.data.frame(DBI::dbGetQuery(conn, sql))
 
