@@ -62,6 +62,34 @@ sql_query <- function(sql){
 
 }
 
+sql_write <- function(df, table, key){
+  ## Write dataframe to table
+  ##
+  ## Arg
+  ##  df (Dataframe): Dataframe to be written to table
+  ##  table (str): Name of the table name
+  ##  key (List[str]): List of columns to be check for duplicate records
+  ##
+  ## Return
+  ##  res:
+  ##
+  ## Example
+  ##
+  ##
+
+  conn <- sql_connection()
+
+  DBI::dbWriteTable(conn,
+                    table,
+                    df,
+                    append = TRUE,
+                    row.names = FALSE)
+
+  DBI::dbDisconnect(conn)
+
+  return(NULL)
+}
+
 
 ####
 # Function interfaces
