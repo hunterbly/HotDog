@@ -6,7 +6,7 @@ suppressWarnings(library(dplyr))
 args = commandArgs(trailingOnly=TRUE)
 
 # If no input date, use current date
-input.date = ifelse(is.null(args[1]), as.character(Sys.Date()), args[1])
+input.date = ifelse(is.na(args[1]), as.character(Sys.Date()), args[1])
 
 df = get_hit_signal(ref.date = input.date,
                     format = 'long')
