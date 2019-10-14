@@ -370,7 +370,8 @@ save_hit_signal <- function(df.signal, local = FALSE){
   ##  NULL
   ##
   ## Example:
-  ##   get_hit_signal(ref.date = '2019-06-26')
+  ##   df.signal = get_hit_signal(ref.date = '2019-06-26')
+  ##   save_hit_signal(df.signal = df.signal, local = FALSE)
 
   # Filter out non zero hit and add id column at the front being insert
   df.signal.nz = df.signal %>% filter(hit != 0)
