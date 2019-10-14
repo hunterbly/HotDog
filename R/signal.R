@@ -387,7 +387,7 @@ save_hit_signal <- function(df.signal, local = FALSE){
 
 get_singal_performance <- function(code = 154, local = FALSE){
 
-  df.stock           = get_code(code, local)
+  df.stock           = get_stock(code, local)
   df.signal.history  = get_signal_history(code, local)
 
   df.stock.details   = cal_signal(df.stock)
