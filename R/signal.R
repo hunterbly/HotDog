@@ -387,11 +387,10 @@ save_hit_signal <- function(df.signal, local = FALSE){
 
 get_singal_performance <- function(code = 154, local = FALSE){
 
-  code        = stringr::str_pad(code, 5, pad ='0')
-  stock_sql   = sprintf("SELECT * FROM stock WHERE code = '%s'", code)
-  signal_sql  = sprintf("SELECT * FROM signal_history WHERE code = '%s'", code)
+  df.stock           = get_code(code, local)
+  df.signal.history  = get_signal_history(code, local)
 
-  df.signal_history = sql_query(signal_sql, local)
+  df.stock.details   = cal_signal(df.stock)
 
-  return(df.signal_history)
+  return(df.stock.details)
 }

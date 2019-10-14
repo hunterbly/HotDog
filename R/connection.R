@@ -72,6 +72,18 @@ get_stock <- function(code, local = FALSE){
 }
 
 
+get_signal_history <- function(code, local = FALSE){
+
+  code  = stringr::str_pad(code, 5, pad ='0')
+  sql   = sprintf("SELECT * FROM signal_history WHERE code = '%s'", code)
+  df    = sql_query(sql, local)
+
+  return(df)
+
+}
+
+
+
 ####
 # Function interfaces
 ####
