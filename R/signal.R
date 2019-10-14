@@ -317,6 +317,7 @@ get_hit_signal <- function(ref.date, format = 'wide', local = FALSE){
   ## Args:
   ##  ref.date (str): Date in YYYY-MM-DD format, e.g. 2018-01-01
   ##  format (str): Wide or Long format of the output, e.g. c('wide', 'long')
+  ##  local (bool): Boolean flag to indicate whether the connection is using Local or Remote IP
   ##
   ## Returns:
   ##  df.signal (Dataframe): Stock price dataframe with calculated signal in the input date only
@@ -359,13 +360,25 @@ get_hit_signal <- function(ref.date, format = 'wide', local = FALSE){
 
 save_hit_signal <- function(df.signal, local = FALSE){
 
+  ## Save the signal to the database table
+  ##
+  ## Args:
+  ##  df.signal (Dataframe): Stock price dataframe with calculated signal
+  ##  local (bool): Boolean flag to indicate whether the connection is using Local or Remote IP
+  ##
+  ## Returns:
+  ##  NULL
+  ##
+  ## Example:
+  ##   get_hit_signal(ref.date = '2019-06-26')
+
   # Filter out non zero hit and add id column at the front being insert
   df.signal.nz = df.signal %>% filter(hit != 0)
 
   conn <- sql_connection(local)
 
   DBI::dbWriteTable(conn, "signal_history", df.signal.nz, append = TRUE, row.names = FALSE)
-
+  print(sprintf('No of records inserted to signal_history - %s', nrow(df.signal.nz)))
   DBI::dbDisconnect(conn)
 
   return(NULL)
