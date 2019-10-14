@@ -61,6 +61,16 @@ sql_query <- function(sql, local = FALSE){
 
 }
 
+get_stock <- function(code, local = FALSE){
+
+  code  = stringr::str_pad(code, 5, pad ='0')
+  sql   = sprintf("SELECT * FROM stock WHERE code = '%s'", code)
+  df    = sql_query(sql, local)
+
+  return(df)
+
+}
+
 
 ####
 # Function interfaces
@@ -92,4 +102,5 @@ get_pool <- function(){
   # pool
 
 }
+
 
