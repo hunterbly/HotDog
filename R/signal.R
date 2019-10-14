@@ -181,6 +181,17 @@ eval_signal <- function(signal.list, df){
 
 cal_signal <- function(df){
 
+  ## Calculate whether the pre-defined signal is being hit with the corresponding return in the following days
+  ##
+  ## Arg
+  ##  df (Dataframe): Dataframe of the stock data
+  ##
+  ## Return
+  ##  df.singal (Dataframe): Dataframe of the stock data with flag of signal hit and the corresponding return in the following days
+  ##
+  ## Example
+  ##  df.signal = cal_singal(df)
+
   if('code' %in% colnames(df)){
     data <- df %>% filter(volume != 0) %>% arrange(code, date)
   }
@@ -209,7 +220,7 @@ cal_signal <- function(df){
 
   for(i in 1:5) {
     data <- high_return(df = data, n=i)
-    data <-  low_return(df = data, n=i)
+    data <- low_return(df = data, n=i)
   }
 
   data %>% arrange(desc(date))
@@ -218,7 +229,22 @@ cal_signal <- function(df){
 }
 
 
-cal_signal_strength <- function(signalName, df, threshold = 0.03){
+cal_signal_strength <- function(signalName, df.grouped, threshold = 0.03){
+
+  ## Calculate whether the pre-defined signal is being hit with the corresponding return in the following days
+  ##
+  ## Arg
+  ##  SingalName (str): Name of the pre-defined Signal name, e.g. s_bull_stick
+  ##  df.grouped (Dataframe):
+  ##  threshold (num): Percentage of the threshold
+  ##
+  ## Return
+  ##  out (Dataframe):
+  ##
+  ## Example
+  ##
+
+  df <- df.grouped
 
   out <- tryCatch({
     filter_criteria <- interp(~which_column == 1, which_column = as.name(signalName))
@@ -281,4 +307,66 @@ get_signal_strength <- function(df){
 
   # get evaluated signal
   signal.result <- data.signal.eval %>% select(code, signal.eval) %>% unnest(signal.eval)
+}
+
+
+get_hit_signal <- function(ref.date, format = 'wide', local = FALSE){
+
+  ## Get the signal for the reference date with long or wide format
+  ##
+  ## Args:
+  ##  ref.date (str): Date in YYYY-MM-DD format, e.g. 2018-01-01
+  ##  format (str): Wide or Long format of the output, e.g. c('wide', 'long')
+  ##
+  ## Returns:
+  ##  df.signal (Dataframe): Stock price dataframe with calculated signal in the input date only
+  ##
+  ## Example:
+  ##   get_hit_signal(ref.date = '2019-06-26')
+
+  date.input    = lubridate::ymd(ref.date)
+  date.earliest  = date.input - 20
+
+  query = sprintf("SELECT * FROM STOCK WHERE DATE >= '%s' AND DATE <= '%s'", date.earliest, date.input)
+  df.raw = sql_query(query, local)
+
+  # Calculate the signal and append to the original data
+  df.signal.all = cal_signal(df.raw)
+
+  # Filter by the input date and select related column only
+  df.signal.filtered = df.signal.all %>%
+                        select(c('date', 'code'), starts_with('s_')) %>%    # select signal column only
+                        filter(date == date.input)
+
+  if(format == 'wide'){
+
+    # Return wide format
+    df.signal = df.signal.filtered
+
+  }else if(format == 'long'){
+
+    # Return wide format
+
+    df.signal = reshape2::melt(df.signal.filtered, id.vars=c("date", "code"), na.rm = TRUE)
+    colnames(df.signal) <- c('date', 'code', 'signal', 'hit')
+
+  }else{
+    stop_quietly(sprintf("Data format - %s is no supported ", format))
+  }
+
+  return(df.signal)
+}
+
+save_hit_signal <- function(df.signal, local = FALSE){
+
+  # Filter out non zero hit and add id column at the front being insert
+  df.signal.nz = df.signal %>% filter(hit != 0)
+
+  conn <- sql_connection(local)
+
+  DBI::dbWriteTable(conn, "signal_history", df.signal.nz, append = TRUE, row.names = FALSE)
+
+  DBI::dbDisconnect(conn)
+
+  return(NULL)
 }

@@ -1,6 +1,17 @@
 sql_connection <- function(local = FALSE){
 
   ## Return connection for remote database
+  ##
+  ## Arg
+  ##  local (bool): Boolean flag to indicate whether the connection is using Local or Remote IP
+  ##
+  ## Return
+  ##  conn (PostgreSQLConnection): PSQL connection
+  ##
+  ## Example
+  ##  conn = sql_connection
+  ##  DBI::dbDisconnect(conn)
+
   if(local == TRUE){
 
     conn <- DBI::dbConnect(drv    = RPostgreSQL::PostgreSQL(),
@@ -27,7 +38,18 @@ sql_connection <- function(local = FALSE){
 
 sql_query <- function(sql, local = FALSE){
 
-  ### Get data from the provided sql
+  ## Get data from the provided sql
+  ##
+  ## Arg
+  ##  sql (str): SQL statement
+  ##  local (bool): Boolean flag to indicate whether the connection is using Local or Remote IP
+  ##
+  ## Return
+  ##  res (Dataframe): Dataframe of the result of the query statement
+  ##
+  ## Example
+  ##  df <- sql_query("select * from stock where date >= '2019-06-01' order by date desc")
+  ##
 
   conn <- sql_connection(local)
 
