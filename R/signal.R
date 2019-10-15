@@ -387,10 +387,16 @@ save_hit_signal <- function(df.signal, local = FALSE){
 
 get_singal_performance <- function(code = 154, local = FALSE){
 
-  df.stock           = get_stock(code, local)
-  df.signal.history  = get_signal_history(code, local)
+  df.stock            = db_get_stock(code, local)
+  df.signal.history   = db_get_signal_history(code, local)
+  df.signal.strength  = db_get_signal_strength(code, local)
 
-  df.stock.details   = cal_signal(df.stock)
+  df.stock.details    = cal_signal(df.stock)
 
-  return(df.stock.details)
+  # Join the three tables
+  temp = merge(df.signal.history,
+               df.stock.details,
+               by = c('date', 'code'), all = FALSE)       # Inner join
+
+  return(temp)
 }

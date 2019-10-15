@@ -61,7 +61,7 @@ sql_query <- function(sql, local = FALSE){
 
 }
 
-get_stock <- function(code, local = FALSE){
+db_get_stock <- function(code, local = FALSE){
 
   code  = stringr::str_pad(code, 5, pad ='0')
   sql   = sprintf("SELECT * FROM stock WHERE code = '%s'", code)
@@ -73,7 +73,7 @@ get_stock <- function(code, local = FALSE){
 }
 
 
-get_signal_history <- function(code, local = FALSE){
+db_get_signal_history <- function(code, local = FALSE){
 
   code  = stringr::str_pad(code, 5, pad ='0')
   sql   = sprintf("SELECT * FROM signal_history WHERE code = '%s'", code)
@@ -84,7 +84,7 @@ get_signal_history <- function(code, local = FALSE){
 
 }
 
-get_signal_strength <- function(code, local = FALSE){
+db_get_signal_strength <- function(code, local = FALSE){
 
   # TODO: Standardize to zfill(5)
   code  = stringr::str_pad(code, 4, pad ='0')   # Pad to 4 character
