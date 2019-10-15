@@ -414,7 +414,7 @@ save_hit_signal <- function(df.signal, local = FALSE){
   return(NULL)
 }
 
-get_singal_performance <- function(code = 154, local = FALSE){
+get_signal_performance <- function(code = 154, local = FALSE){
 
   # Load saved data in database
   df.stock            = db_get_stock(code, local)
