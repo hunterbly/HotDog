@@ -417,6 +417,11 @@ save_hit_signal <- function(df.signal, local = FALSE){
 get_signal_performance <- function(code, local = FALSE){
 
   code = 154
+  local = FALSE
+
+  # Define threshold
+  CONSTANT_THRESHOLD = 0.03
+
   # Load saved data in database
   df.stock            = db_get_stock(code, local)
   df.signal.history   = db_get_signal_history(code, local)
@@ -442,7 +447,35 @@ get_signal_performance <- function(code, local = FALSE){
                          by = c('date', 'code'),
                          all = FALSE)             # Inner join
 
+  # Filter out, stock without signal_strength (TODO)
+  res = df.signal.full[!is.null(signal_index)]
 
+  # Derive output
+  res[, direction := ifelse(signal_index >= 0, 1, -1)]      # Act as signal direction
+
+  # Derive day0 - day5
+  res[, `:=`(day.0 = close,                                            # Day 0 always closing price
+
+             day.1        = ifelse(direction == 1, high.lead.1, low.lead.1),  # Direction +ve, high. Direction -ve, low
+             day.2        = ifelse(direction == 1, high.lead.2, low.lead.2),
+             day.3        = ifelse(direction == 1, high.lead.3, low.lead.3),
+             day.4        = ifelse(direction == 1, high.lead.4, low.lead.4),
+             day.5        = ifelse(direction == 1, high.lead.5, low.lead.5),
+
+             day.1.return = ifelse(direction == 1, high.return.lead.1, low.return.lead.1),
+             day.2.return = ifelse(direction == 1, high.return.lead.2, low.return.lead.2),
+             day.3.return = ifelse(direction == 1, high.return.lead.3, low.return.lead.3),
+             day.4.return = ifelse(direction == 1, high.return.lead.4, low.return.lead.4),
+             day.5.return = ifelse(direction == 1, high.return.lead.5, low.return.lead.5)
+             )]
+
+  # Final derive success flag
+  res = res[, success := ifelse(direction == 1,
+                                abs(pmax(day.1.return, day.2.return, day.3.return, day.4.return, day.5.return, na.rm = TRUE)) >= CONSTANT_THRESHOLD,
+                                abs(pmin(day.1.return, day.2.return, day.3.return, day.4.return, day.5.return, na.rm = TRUE)) >= CONSTANT_THRESHOLD)]
+
+  # Select related columns only
+  # res = res[, .()]
 
   return(res)
 }
