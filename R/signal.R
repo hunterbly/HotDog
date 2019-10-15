@@ -152,6 +152,28 @@ f_shooting_star <- function(open.lag0, close.lag0, open.lag1, close.lag1, low.la
 }
 
 
+high_raw <- function(df, n) {
+  df %>% arrange(date)
+  varname <- paste("high.lead", n , sep=".")
+  varval <- lazyeval::interp(~(lead(high, n)), n=n)
+  mutate_(df, .dots= setNames(list(varval), varname))
+}
+
+low_raw <- function(df, n) {
+  df %>% arrange(date)
+  varname <- paste("low.lead", n , sep=".")
+  varval <- lazyeval::interp(~(lead(low, n)), n=n)
+  mutate_(df, .dots= setNames(list(varval), varname))
+}
+
+close_raw <- function(df, n) {
+  df %>% arrange(date)
+  varname <- paste("close.lead", n , sep=".")
+  varval <- lazyeval::interp(~(lead(close, n)), n=n)
+  mutate_(df, .dots= setNames(list(varval), varname))
+}
+
+
 high_return <- function(df, n) {
   df %>% arrange(date)
   varname <- paste("high.return.lead", n , sep=".")
@@ -190,7 +212,8 @@ cal_signal <- function(df){
   ##  df.singal (Dataframe): Dataframe of the stock data with flag of signal hit and the corresponding return in the following days
   ##
   ## Example
-  ##  df.signal = cal_singal(df)
+  ##  df.stock  = db_get_stock(code = '154', local = FALSE)
+  ##  df.signal = cal_signal(df = df.stock)
 
   if('code' %in% colnames(df)){
     data <- df %>% filter(volume != 0) %>% arrange(code, date)
@@ -219,8 +242,14 @@ cal_signal <- function(df){
 
 
   for(i in 1:5) {
+
+    # Return percentage
     data <- high_return(df = data, n=i)
     data <- low_return(df = data, n=i)
+
+    # Return raw price
+    data <- high_raw(df = data, n=i)
+    data <- low_raw(df = data, n=i)
   }
 
   data %>% arrange(desc(date))
