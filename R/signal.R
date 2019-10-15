@@ -414,8 +414,9 @@ save_hit_signal <- function(df.signal, local = FALSE){
   return(NULL)
 }
 
-get_signal_performance <- function(code = 154, local = FALSE){
+get_signal_performance <- function(code, local = FALSE){
 
+  code = 154
   # Load saved data in database
   df.stock            = db_get_stock(code, local)
   df.signal.history   = db_get_signal_history(code, local)
@@ -436,10 +437,12 @@ get_signal_performance <- function(code = 154, local = FALSE){
                     all.x = TRUE)      # Left join
 
   # Join the three tables
-  res = merge(df.signal,
-              df.stock.details,
-              by = c('date', 'code'),
-              all = FALSE)             # Inner join
+  df.signal.full = merge(df.signal,
+                         df.stock.details,
+                         by = c('date', 'code'),
+                         all = FALSE)             # Inner join
+
+
 
   return(res)
 }
