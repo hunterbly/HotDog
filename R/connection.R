@@ -91,10 +91,19 @@ db_get_signal_strength <- function(code, local = FALSE){
 
   sql   = sprintf("SELECT * FROM signal_strength WHERE code = '%s'", code)
   df    = sql_query(sql, local)
-  if(nrow(df) > 0) {df    = df[, c("id") := NULL]}
 
-  # pad code column for 5 digit
-  df    = df[, code := stringr::str_pad(code, 5, pad ='0')]
+  if(nrow(df) > 0) {
+
+    df    = df[, c("id") := NULL]
+
+    # pad code column for 5 digit
+    df    = df[, code := stringr::str_pad(code, 5, pad ='0')]
+
+    # Remove value_recent column and and rename value_all to signal_index
+    df    = df[, `:=`(value_recent = NULL,
+                      signal_index = value_all,
+                      value_all    = NULL)]
+  }
 
   return(df)
 
