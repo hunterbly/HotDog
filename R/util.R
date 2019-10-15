@@ -12,3 +12,25 @@ stop_quietly <- function(msg) {
   on.exit(options(opt))
   stop(msg, call. = FALSE)
 }
+
+round_dataframe <- function(df, digits = 2){
+
+  ## Round the numeric columns of the provided dataframe
+  ##
+  ## Args:
+  ##  df (Dataframe): Dataframe to be rounded
+  ##  digits (num): No of digits to be rounded
+  ##
+  ## Returns:
+  ##  df (Dataframe): Dataframe with rounded numbers
+  ##
+  ## Example:
+  ##  dt = as.data.table(iris)
+  ##  dt = round_dataframe(df = dt, digits = 0)
+
+  # Find numeric cols, round the columns with no of digits provided
+  numeric.cols = colnames(Filter(is.numeric, df))
+  df[, (numeric.cols) := round(.SD, digits), .SDcols = numeric.cols]
+
+  return(df)
+}

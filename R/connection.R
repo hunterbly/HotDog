@@ -53,7 +53,7 @@ sql_query <- function(sql, local = FALSE){
 
   conn <- sql_connection(local)
 
-  res <- as.data.frame(DBI::dbGetQuery(conn, sql))
+  res <- data.table::as.data.table(as.data.frame(DBI::dbGetQuery(conn, sql)))
 
   DBI::dbDisconnect(conn)
 
