@@ -66,7 +66,7 @@ get_stock <- function(code, local = FALSE){
   code  = stringr::str_pad(code, 5, pad ='0')
   sql   = sprintf("SELECT * FROM stock WHERE code = '%s'", code)
   df    = sql_query(sql, local)
-  df    = df[, c("id") := NULL]
+  if(nrow(df) > 0) {df    = df[, c("id") := NULL]}
 
   return(df)
 
@@ -78,7 +78,23 @@ get_signal_history <- function(code, local = FALSE){
   code  = stringr::str_pad(code, 5, pad ='0')
   sql   = sprintf("SELECT * FROM signal_history WHERE code = '%s'", code)
   df    = sql_query(sql, local)
-  df    = df[, c("id") := NULL]
+  if(nrow(df) > 0) {df    = df[, c("id") := NULL]}
+
+  return(df)
+
+}
+
+get_signal_strength <- function(code, local = FALSE){
+
+  # TODO: Standardize to zfill(5)
+  code  = stringr::str_pad(code, 4, pad ='0')   # Pad to 4 character
+
+  sql   = sprintf("SELECT * FROM signal_strength WHERE code = '%s'", code)
+  df    = sql_query(sql, local)
+  if(nrow(df) > 0) {df    = df[, c("id") := NULL]}
+
+  # pad code column for 5 digit
+  df    = df[, code := stringr::str_pad(code, 5, pad ='0')]
 
   return(df)
 
