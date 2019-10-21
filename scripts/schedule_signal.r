@@ -6,12 +6,16 @@ suppressWarnings(library(dplyr))
 args = commandArgs(trailingOnly=TRUE)
 
 input.date = args[1]
-str(input.date)
-# Call
-# df = get_hit_signal(ref.date = date, format = 'long', local = TRUE)
-# return(df)
-df = get_hit_signal(ref.date = input.date, 
-                    format = 'long', 
+
+if(is.na(input.date)){
+    input.date = as.character(Sys.Date())
+}else {
+    # pass
+}
+
+
+df = get_hit_signal(ref.date = input.date,
+                    format = 'long',
                     local = TRUE)
 df.nz = df %>% filter(hit != 0)
 

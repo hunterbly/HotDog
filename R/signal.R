@@ -152,6 +152,28 @@ f_shooting_star <- function(open.lag0, close.lag0, open.lag1, close.lag1, low.la
 }
 
 
+high_raw <- function(df, n) {
+  df %>% arrange(date)
+  varname <- paste("high.lead", n , sep=".")
+  varval <- lazyeval::interp(~(lead(high, n)), n=n)
+  mutate_(df, .dots= setNames(list(varval), varname))
+}
+
+low_raw <- function(df, n) {
+  df %>% arrange(date)
+  varname <- paste("low.lead", n , sep=".")
+  varval <- lazyeval::interp(~(lead(low, n)), n=n)
+  mutate_(df, .dots= setNames(list(varval), varname))
+}
+
+close_raw <- function(df, n) {
+  df %>% arrange(date)
+  varname <- paste("close.lead", n , sep=".")
+  varval <- lazyeval::interp(~(lead(close, n)), n=n)
+  mutate_(df, .dots= setNames(list(varval), varname))
+}
+
+
 high_return <- function(df, n) {
   df %>% arrange(date)
   varname <- paste("high.return.lead", n , sep=".")
@@ -190,7 +212,8 @@ cal_signal <- function(df){
   ##  df.singal (Dataframe): Dataframe of the stock data with flag of signal hit and the corresponding return in the following days
   ##
   ## Example
-  ##  df.signal = cal_singal(df)
+  ##  df.stock  = db_get_stock(code = '154', local = FALSE)
+  ##  df.signal = cal_signal(df = df.stock)
 
   if('code' %in% colnames(df)){
     data <- df %>% filter(volume != 0) %>% arrange(code, date)
@@ -219,8 +242,14 @@ cal_signal <- function(df){
 
 
   for(i in 1:5) {
+
+    # Return percentage
     data <- high_return(df = data, n=i)
     data <- low_return(df = data, n=i)
+
+    # Return raw price
+    data <- high_raw(df = data, n=i)
+    data <- low_raw(df = data, n=i)
   }
 
   data %>% arrange(desc(date))
@@ -317,6 +346,7 @@ get_hit_signal <- function(ref.date, format = 'wide', local = FALSE){
   ## Args:
   ##  ref.date (str): Date in YYYY-MM-DD format, e.g. 2018-01-01
   ##  format (str): Wide or Long format of the output, e.g. c('wide', 'long')
+  ##  local (bool): Boolean flag to indicate whether the connection is using Local or Remote IP
   ##
   ## Returns:
   ##  df.signal (Dataframe): Stock price dataframe with calculated signal in the input date only
@@ -359,14 +389,93 @@ get_hit_signal <- function(ref.date, format = 'wide', local = FALSE){
 
 save_hit_signal <- function(df.signal, local = FALSE){
 
+  ## Save the signal to the database table
+  ##
+  ## Args:
+  ##  df.signal (Dataframe): Stock price dataframe with calculated signal
+  ##  local (bool): Boolean flag to indicate whether the connection is using Local or Remote IP
+  ##
+  ## Returns:
+  ##  NULL
+  ##
+  ## Example:
+  ##   df.signal = get_hit_signal(ref.date = '2019-06-26')
+  ##   save_hit_signal(df.signal = df.signal, local = FALSE)
+
   # Filter out non zero hit and add id column at the front being insert
   df.signal.nz = df.signal %>% filter(hit != 0)
 
   conn <- sql_connection(local)
 
   DBI::dbWriteTable(conn, "signal_history", df.signal.nz, append = TRUE, row.names = FALSE)
-
+  print(sprintf('No of records inserted to signal_history - %s', nrow(df.signal.nz)))
   DBI::dbDisconnect(conn)
 
   return(NULL)
+}
+
+get_signal_performance <- function(code, local = FALSE){
+
+  code = 154
+  local = FALSE
+
+  # Define threshold
+  CONSTANT_THRESHOLD = 0.03
+
+  # Load saved data in database
+  df.stock            = db_get_stock(code, local)
+  df.signal.history   = db_get_signal_history(code, local)
+  df.signal.strength  = db_get_signal_strength(code, local)
+
+  # if any of the data frame is zero
+  if(nrow(df.signal.history) == 0| nrow(df.stock) == 0){
+    stop_quietly("No records in database")
+  }
+
+  # Derive columns
+  df.stock.details    = cal_signal(df.stock)
+
+  # Join signal strength
+  df.signal = merge(df.signal.history,
+                    df.signal.strength,
+                    by = c('code', 'signal'),
+                    all.x = TRUE)      # Left join
+
+  # Join the three tables
+  df.signal.full = merge(df.signal,
+                         df.stock.details,
+                         by = c('date', 'code'),
+                         all = FALSE)             # Inner join
+
+  # Filter out, stock without signal_strength (TODO)
+  res = df.signal.full[!is.null(signal_index)]
+
+  # Derive output
+  res[, direction := ifelse(signal_index >= 0, 1, -1)]      # Act as signal direction
+
+  # Derive day0 - day5
+  res[, `:=`(day.0 = close,                                            # Day 0 always closing price
+
+             day.1        = ifelse(direction == 1, high.lead.1, low.lead.1),  # Direction +ve, high. Direction -ve, low
+             day.2        = ifelse(direction == 1, high.lead.2, low.lead.2),
+             day.3        = ifelse(direction == 1, high.lead.3, low.lead.3),
+             day.4        = ifelse(direction == 1, high.lead.4, low.lead.4),
+             day.5        = ifelse(direction == 1, high.lead.5, low.lead.5),
+
+             day.1.return = ifelse(direction == 1, high.return.lead.1, low.return.lead.1),
+             day.2.return = ifelse(direction == 1, high.return.lead.2, low.return.lead.2),
+             day.3.return = ifelse(direction == 1, high.return.lead.3, low.return.lead.3),
+             day.4.return = ifelse(direction == 1, high.return.lead.4, low.return.lead.4),
+             day.5.return = ifelse(direction == 1, high.return.lead.5, low.return.lead.5)
+             )]
+
+  # Final derive success flag
+  res = res[, success := ifelse(direction == 1,
+                                abs(pmax(day.1.return, day.2.return, day.3.return, day.4.return, day.5.return, na.rm = TRUE)) >= CONSTANT_THRESHOLD,
+                                abs(pmin(day.1.return, day.2.return, day.3.return, day.4.return, day.5.return, na.rm = TRUE)) >= CONSTANT_THRESHOLD)]
+
+  # Select related columns only
+  # res = res[, .()]
+
+  return(res)
 }

@@ -53,13 +53,62 @@ sql_query <- function(sql, local = FALSE){
 
   conn <- sql_connection(local)
 
-  res <- as.data.frame(DBI::dbGetQuery(conn, sql))
+  res <- data.table::as.data.table(as.data.frame(DBI::dbGetQuery(conn, sql)))
 
   DBI::dbDisconnect(conn)
 
   return(res)
 
 }
+
+db_get_stock <- function(code, local = FALSE){
+
+  code  = stringr::str_pad(code, 5, pad ='0')
+  sql   = sprintf("SELECT * FROM stock WHERE code = '%s'", code)
+  df    = sql_query(sql, local)
+  if(nrow(df) > 0) {df    = df[, c("id") := NULL]}
+
+  return(df)
+
+}
+
+
+db_get_signal_history <- function(code, local = FALSE){
+
+  code  = stringr::str_pad(code, 5, pad ='0')
+  sql   = sprintf("SELECT * FROM signal_history WHERE code = '%s'", code)
+  df    = sql_query(sql, local)
+  if(nrow(df) > 0) {df    = df[, c("id") := NULL]}
+
+  return(df)
+
+}
+
+db_get_signal_strength <- function(code, local = FALSE){
+
+  # TODO: Standardize to zfill(5)
+  code  = stringr::str_pad(code, 4, pad ='0')   # Pad to 4 character
+
+  sql   = sprintf("SELECT * FROM signal_strength WHERE code = '%s'", code)
+  df    = sql_query(sql, local)
+
+  if(nrow(df) > 0) {
+
+    df    = df[, c("id") := NULL]
+
+    # pad code column for 5 digit
+    df    = df[, code := stringr::str_pad(code, 5, pad ='0')]
+
+    # Remove value_recent column and and rename value_all to signal_index
+    df    = df[, `:=`(value_recent = NULL,
+                      signal_index = value_all,
+                      value_all    = NULL)]
+  }
+
+  return(df)
+
+}
+
 
 
 ####
@@ -92,4 +141,5 @@ get_pool <- function(){
   # pool
 
 }
+
 
