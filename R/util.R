@@ -35,7 +35,7 @@ round_dataframe <- function(df, digits = 2){
   return(df)
 }
 
-create_shift_calendar <- function(n = 5){
+create_lead_calendar <- function(n = 5){
 
   # Create calendar
   df.calendar = tryCatch({
@@ -68,6 +68,13 @@ create_shift_calendar <- function(n = 5){
   # Append back the first column (date 0), then rename columns
   colname = c('date', colname)
   colnames(df.calendar) = colname
+
+  # To long format, order
+  df.calendar.long = data.table::as.data.table(reshape2::melt(df.calendar, id.vars = c("date"), value.name = "leading") )
+  df.calendar.long = df.calendar.long[order(-date)]
+
+  # Remove variable column
+  df.calendar[variable := NULL]
 
   return(df.calendar)
 
