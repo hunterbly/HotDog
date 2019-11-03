@@ -82,19 +82,7 @@ db_get_signal_history <- function(code = 154, local = FALSE){
   # Remove id column
   if(nrow(df) > 0) {df    = df[, c("id") := NULL]}
 
-  # Create calendar
-  df.calendar = tryCatch({
 
-                  sql_query("SELECT DISTINCT DATE
-                             FROM STOCK
-                             WHERE CODE = '00001'
-                             ORDER BY DATE DESC", local)
-
-                }, error = function(e){
-
-                  stop_quietly("No calendar in database")
-
-                })
 
   return(df.calendar)
 

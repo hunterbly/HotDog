@@ -34,3 +34,31 @@ round_dataframe <- function(df, digits = 2){
 
   return(df)
 }
+
+create_shift_calendar <- function(n = 5){
+
+  # Create calendar
+  df.calendar = tryCatch({
+
+    sql_query("SELECT DISTINCT DATE
+                             FROM STOCK
+                             WHERE CODE = '00001'
+                             ORDER BY DATE DESC", local)
+
+  }, error = function(e){
+
+    stop_quietly("No calendar in database")
+
+  })
+
+  # Shift by n day
+  df.calendar[, data.table::shift(date, 0:n)]
+
+  # Rename column
+  if (n > 0){
+    colname = paste0('date_' , 1:n)   # Create column name like date_1, date_2, date_n
+  }
+
+  return(df.calendar)
+
+}
