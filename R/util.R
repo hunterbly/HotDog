@@ -51,13 +51,23 @@ create_shift_calendar <- function(n = 5){
 
   })
 
-  # Shift by n day
-  df.calendar[, data.table::shift(date, 0:n)]
 
   # Rename column
   if (n > 0){
+    # Shift by n day
+    df.calendar = df.calendar[, data.table::shift(date, 0:n)]
     colname = paste0('date_' , 1:n)   # Create column name like date_1, date_2, date_n
+
+  } else{
+
+    # If n = 0, return dataframe with no shift
+    return(df.calendar)
+
   }
+
+  # Append back the first column (date 0), then rename columns
+  colname = c('date', colname)
+  colnames(df.calendar) = colname
 
   return(df.calendar)
 
