@@ -35,7 +35,7 @@ round_dataframe <- function(df, digits = 2){
   return(df)
 }
 
-create_lead_calendar <- function(n = 5){
+create_lead_calendar <- function(n = 5, local = FALSE){
 
   # Create calendar
   df.calendar = tryCatch({
@@ -46,7 +46,7 @@ create_lead_calendar <- function(n = 5){
                              ORDER BY DATE DESC", local)
 
   }, error = function(e){
-
+    message(e)
     stop_quietly("No calendar in database")
 
   })
@@ -69,13 +69,14 @@ create_lead_calendar <- function(n = 5){
   colname = c('date', colname)
   colnames(df.calendar) = colname
 
-  # To long format, order
+  # To long format, order by date desc
   df.calendar.long = data.table::as.data.table(reshape2::melt(df.calendar, id.vars = c("date"), value.name = "leading") )
   df.calendar.long = df.calendar.long[order(-date)]
 
-  # Remove variable column
-  df.calendar[variable := NULL]
+  # Remove variable column, remove NA in leading column
+  df.calendar.long[, variable := NULL]
+  df.calendar.long = df.calendar.long[!is.na(leading)]
 
-  return(df.calendar)
+  return(df.calendar.long)
 
 }
