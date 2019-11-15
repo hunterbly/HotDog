@@ -73,7 +73,7 @@ db_get_stock <- function(code, local = FALSE){
 }
 
 
-db_get_signal_history <- function(code = 154, local = FALSE){
+db_get_signal_history <- function(code, local = FALSE){
 
   code  = stringr::str_pad(code, 5, pad ='0')
   sql   = sprintf("SELECT * FROM signal_history WHERE CODE = '%s' ORDER BY CODE, DATE DESC", code)
@@ -84,7 +84,7 @@ db_get_signal_history <- function(code = 154, local = FALSE){
 
 
 
-  return(df.calendar)
+  return(df)
 
 }
 
