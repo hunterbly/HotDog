@@ -416,9 +416,6 @@ save_hit_signal <- function(df.signal, local = FALSE){
 
 get_signal_performance <- function(code, local = FALSE){
 
-  code = 154
-  local = FALSE
-
   # Define threshold
   CONSTANT_THRESHOLD = 0.03
 
