@@ -1,5 +1,6 @@
 hotdog <- function(){
   print("Hotdog")
+  print("Something else")
 }
 
 # rename signiture for python
