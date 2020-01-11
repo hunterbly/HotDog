@@ -414,6 +414,30 @@ save_hit_signal <- function(df.signal, local = FALSE){
   return(NULL)
 }
 
+load_hit_signal <- function(ref.date, format = 'long', local = FALSE){
+
+  ## load signal hit history in database
+  ##
+  ## Args:
+  ##  ref.date (str): Date in YYYY-MM-DD format, e.g. 2018-01-01
+  ##  format (str): Wide or Long format of the output, e.g. c('wide', 'long'). Default Long.
+  ##  local (bool): Boolean flag to indicate whether the connection is using Local or Remote IP
+  ##
+  ## Returns:
+  ##  df.signal (Dataframe): Stock price dataframe with calculated signal in the input date only
+  ##
+  ## Example:
+  ##   load_hit_signal(ref.date = '2019-06-26')
+
+
+  date.input    = lubridate::ymd(ref.date)
+
+  query = sprintf("SELECT * FROM SIGNAL_HISTORY WHERE DATE = '%s' ORDER BY CODE ASC", date.input)
+  df.raw = sql_query(query, local)
+
+  return(NULL)
+}
+
 get_signal_performance <- function(code, local = FALSE){
 
   # Define threshold
