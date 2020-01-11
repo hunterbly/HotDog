@@ -428,7 +428,7 @@ load_hit_signal <- function(ref.date, format = 'long', option.only = TRUE, local
   ##  df.signal (Dataframe): Stock price dataframe with calculated signal in the input date only
   ##
   ## Example:
-  ##   load_hit_signal(ref.date = '2019-06-26')
+  ##   load_hit_signal(ref.date = '2020-01-10', option.only = TRUE)
 
 
   date.input    = lubridate::ymd(ref.date)
@@ -436,7 +436,13 @@ load_hit_signal <- function(ref.date, format = 'long', option.only = TRUE, local
   query = sprintf("SELECT * FROM SIGNAL_HISTORY WHERE DATE = '%s' ORDER BY CODE ASC", date.input)
   df.raw = sql_query(query, local)
 
+  # Check if there is signal data before joining
+  if(nrow(df.raw) == 0){
+    stop_quietly(sprintf("No data for date %s", ref.date))
+  }
+
   if(option.only){
+    # Inner join with option list
     df.option.stock = sql_query('SELECT code FROM option_stock', local)
     df.signal = merge(df.raw, df.option.stock, by="code", all = FALSE)
   } else{
@@ -444,7 +450,16 @@ load_hit_signal <- function(ref.date, format = 'long', option.only = TRUE, local
   }
 
   if(nrow(df.signal) == 0){
-    stop_quietly(sprintf("No data for date %s", ref.date))
+    stop_quietly(sprintf("No data for date %s. Please check the option list as well", ref.date))
+  }
+
+  # Handle long/wide format
+  if(format == 'long'){
+    # Do nothing
+  } else if(format == 'wide'){
+    # To be added
+  } else{
+    stop_quietly("Not supported")
   }
 
   return(df.signal)
