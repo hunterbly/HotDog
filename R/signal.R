@@ -416,11 +416,11 @@ save_hit_signal <- function(df.signal, local = FALSE){
 
 load_hit_signal <- function(ref.date, format = 'long', option.only = TRUE, local = FALSE){
 
-  ## load signal hit history in database
+  ## load signal hit history in database. Return all or option only signal with wide or long format
   ##
   ## Args:
   ##  ref.date (str): Date in YYYY-MM-DD format, e.g. 2018-01-01
-  ##  format (str): Wide or Long format of the output, e.g. c('wide', 'long'). Default Long.
+  ##  format (str): Wide or Long format of the output, e.g. c('wide', 'long'). Default Long
   ##  option.only (bool): Specify whether the signal are for option only stocks. Default true
   ##  local (bool): Boolean flag to indicate whether the connection is using Local or Remote IP
   ##
@@ -436,7 +436,18 @@ load_hit_signal <- function(ref.date, format = 'long', option.only = TRUE, local
   query = sprintf("SELECT * FROM SIGNAL_HISTORY WHERE DATE = '%s' ORDER BY CODE ASC", date.input)
   df.raw = sql_query(query, local)
 
-  return(NULL)
+  if(option.only){
+    df.option.stock = sql_query('SELECT code FROM option_stock', local)
+    df.signal = merge(df.raw, df.option.stock, by="code", all = FALSE)
+  } else{
+    df.signal = df.raw
+  }
+
+  if(nrow(df.signal) == 0){
+    stop_quietly(sprintf("No data for date %s", ref.date))
+  }
+
+  return(df.signal)
 }
 
 get_signal_performance <- function(code, local = FALSE){
