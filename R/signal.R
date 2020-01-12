@@ -436,14 +436,14 @@ load_hit_signal <- function(ref_date, format = 'long', option_only = TRUE, local
   log_args(func = 'load_hit_signal',
            arg.str = allargs())
 
-  date.input    = lubridate::ymd(ref_date)
+  date.input = lubridate::ymd(ref_date)
 
   query = sprintf("SELECT * FROM SIGNAL_HISTORY WHERE DATE = '%s' ORDER BY CODE ASC", date.input)
   df.raw = sql_query(query, local)
 
   # Check if there is signal data before joining
   if(nrow(df.raw) == 0){
-    stop_quietly(sprintf("No data for date %s", ref.date))
+    stop_quietly(sprintf("No data for date %s", ref_date))
   }
 
   if(option_only){
