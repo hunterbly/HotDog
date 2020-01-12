@@ -430,6 +430,11 @@ load_hit_signal <- function(ref_date, format = 'long', option_only = TRUE, local
   ## Example:
   ##   load_hit_signal(ref.date = '2020-01-10', option.only = TRUE)
 
+  ####
+  # Logging
+  ####
+  log_args(func = 'load_hit_signal',
+           arg.str = allargs())
 
   date.input    = lubridate::ymd(ref_date)
 
