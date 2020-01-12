@@ -428,7 +428,7 @@ load_hit_signal <- function(ref_date, format = 'long', option_only = TRUE, local
   ##  df.signal (Dataframe): Stock price dataframe with calculated signal in the input date only
   ##
   ## Example:
-  ##   load_hit_signal(ref.date = '2020-01-10', option.only = TRUE)
+  ##   load_hit_signal(ref_date = '2020-01-10', option_only = TRUE)
 
   ####
   # Logging
