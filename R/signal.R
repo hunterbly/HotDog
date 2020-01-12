@@ -414,21 +414,21 @@ save_hit_signal <- function(df.signal, local = FALSE){
   return(NULL)
 }
 
-load_hit_signal <- function(ref_date, format = 'long', option_only = TRUE, local = FALSE){
+load_hit_signal <- function(ref.date, format = 'long', option.only = TRUE, local = FALSE){
 
   ## load signal hit history in database. Return all or option only signal with wide or long format
   ##
   ## Args:
-  ##  ref_date (str): Date in YYYY-MM-DD format, e.g. 2018-01-01
+  ##  ref.date (str): Date in YYYY-MM-DD format, e.g. 2018-01-01
   ##  format (str): Wide or Long format of the output, e.g. c('wide', 'long'). Default Long
-  ##  option_only (bool): Specify whether the signal are for option only stocks. Default true
+  ##  option.only (bool): Specify whether the signal are for option only stocks. Default true
   ##  local (bool): Boolean flag to indicate whether the connection is using Local or Remote IP
   ##
   ## Returns:
   ##  df.signal (Dataframe): Stock price dataframe with calculated signal in the input date only
   ##
   ## Example:
-  ##   load_hit_signal(ref_date = '2020-01-10', option_only = TRUE)
+  ##   load_hit_signal(ref.date = '2020-01-10', option.only = TRUE)
 
   ####
   # Logging
@@ -436,17 +436,17 @@ load_hit_signal <- function(ref_date, format = 'long', option_only = TRUE, local
   log_args(func = 'load_hit_signal',
            arg.str = allargs())
 
-  date.input = lubridate::ymd(ref_date)
+  date.input = lubridate::ymd(ref.date)
 
   query = sprintf("SELECT * FROM SIGNAL_HISTORY WHERE DATE = '%s' ORDER BY CODE ASC", date.input)
   df.raw = sql_query(query, local)
 
   # Check if there is signal data before joining
   if(nrow(df.raw) == 0){
-    stop_quietly(sprintf("No data for date %s", ref_date))
+    stop_quietly(sprintf("No data for date %s", ref.date))
   }
 
-  if(option_only){
+  if(option.only){
     # Inner join with option list
     df.option.stock = sql_query('SELECT code FROM option_stock', local)
     df.signal = merge(df.raw, df.option.stock, by="code", all = FALSE)
