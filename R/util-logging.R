@@ -24,6 +24,101 @@ log_args <- function(func, arg.str){
   return(NULL)
 }
 
+init_logger <- function(){
+
+  ## Initiate logging
+  ##
+  ## Args:
+  ##  Nil
+  ##
+  ## Returns:
+  ##  log.file (str): Full path for the log file.
+  ##
+  ## Example:
+  ##  init_logger()               # /tmp/WTCHK/WTCHK.log
+
+  suppressWarnings({library(futile.logger)})
+
+  log.file = get_log_file()
+  flog.appender(appender.file(log.file))
+
+  layout <- layout.format('[~l] [~t] [~n.~f] ~m')
+  flog.layout(layout)
+
+  return(log.file)
+}
+
+
+get_log_folder <- function(){
+
+  ## Get absolute path for the log root folder. Under /tmp in Linux
+  ##
+  ## Args:
+  ##  NULL
+  ##
+  ## Returns:
+  ##  log.folder (str): Absolute path for log root folder
+  ##
+  ## Example:
+  ##  get_log_folder()
+
+  # Handle different separator for Window and Linux, \\ and /
+  temp <- gsub("\\\\", "/", tempdir())
+
+  # Hanlde different base folder for Window and Linux. (Some folder)/Temp/ocpu-temp or /tmp/ocpu-temp
+  base.folder = gsub("^(.*?)(Temp|tmp)(.*?)$","\\1\\2", temp, perl=TRUE)
+
+
+  log.folder = file.path(base.folder, 'HotDog')
+  create_folder_if_not_exists(log.folder)
+
+  return(log.folder)
+}
+
+get_log_file <- function(){
+
+  ## Get absolute path for the log file
+  ##
+  ## Args:
+  ##  NULL
+  ##
+  ## Returns:
+  ##  log.file (str): Absolute path for log file
+  ##
+  ## Example:
+  ##  get_log_file()
+
+  log.folder = get_log_folder()
+  log.file   = file.path(log.folder, paste0('HotDog', '.log'))
+  return(log.file)
+}
+
+create_folder_if_not_exists <- function(folder){
+
+  ## Create folder recursively if not exists. Used in create directory for the local SQLite folder location
+  ##
+  ## Args:
+  ##  folder (str): relative path of the folder location
+  ##
+  ## Returns:
+  ##  NULL: If folder is created successfully, return NULL
+  ##
+  ## Example:
+  ##  local.database = get_sqlite_path("WTCHK")
+  ##  local.dir = dirname(local.database)
+  ##  create_folder_if_not_exists(local.dir)
+
+  if (file.exists(folder)) {
+    # Do nowthing
+  } else {
+    tryCatch(dir.create(folder, showWarnings = TRUE, recursive = TRUE),
+             error = function(e) {
+               print(sprintf("Failed to create folder %s", folder))
+             }
+    )
+  }
+}
+
 allargs <- function(orig_values = FALSE) {
 
   ## Used as evaluating functon arguments in parent function call. Use primarily on external function logging.
