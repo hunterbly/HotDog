@@ -438,7 +438,13 @@ load_hit_signal <- function(ref.date, format = 'long', option.only = TRUE, local
 
   date.input = lubridate::ymd(ref.date)
 
-  query = sprintf("SELECT * FROM SIGNAL_HISTORY WHERE DATE = '%s' ORDER BY CODE ASC", date.input)
+  query = sprintf(" SELECT history.*, mapping.signal_label
+                     FROM SIGNAL_HISTORY history
+                    	INNER JOIN
+                    		SIGNAL_MAPPING mapping
+                    	ON history.signal = mapping.signal
+                     WHERE DATE = '%s' ORDER BY CODE ASC", date.input)
+
   df.raw = sql_query(query, local)
 
   # Check if there is signal data before joining
@@ -467,12 +473,14 @@ load_hit_signal <- function(ref.date, format = 'long', option.only = TRUE, local
     stop_quietly("Not supported")
   }
 
-  return(df.signal)
+  # Selected columns only
+  df.signal.selected = df.signal[, c('code', 'date', 'signal_label'), with=FALSE]
+
+  return(df.signal.selected)
 }
 
 get_signal_performance <- function(code, local = FALSE){
 
-  code = 154
   local = FALSE
 
   # Define threshold
