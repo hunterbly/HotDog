@@ -123,11 +123,17 @@ check_cronjob <-function(local = FALSE){
   df.option = sql_query(sql.option, local)
   df.signal = sql_query(sql.signal, local)
 
+  # Add back table name
+  df.stock[, table := 'stock']
+  df.ccass[, table := 'ccass']
+  df.option[, table := 'option']
+  df.signal[, table := 'signal']
 
-  print(head(df.stock))
-  print(head(df.ccass))
-  print(head(df.option))
-  print(head(df.signal))
+  # rbind
+  df.res = do.call("rbind", list(df.stock,
+                                 df.ccass,
+                                 df.option,
+                                 df.signal))
 
-  return(df.stock)
+  return(df.res)
 }
