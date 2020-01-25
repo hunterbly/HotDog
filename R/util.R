@@ -129,11 +129,13 @@ check_cronjob <-function(local = FALSE){
   df.option[, table := 'option']
   df.signal[, table := 'signal']
 
-  # rbind
-  df.res = do.call("rbind", list(df.stock,
-                                 df.ccass,
-                                 df.option,
-                                 df.signal))
+  # rbind, return first row, reorder column
+  df.combine = do.call("rbind", list(df.stock,
+                                     df.ccass,
+                                     df.option,
+                                     df.signal))
+  df.res = df.combine[, head(.SD, 1), by=table]
+  df.res[, date := as.character(date)]
 
   return(df.res)
 }
