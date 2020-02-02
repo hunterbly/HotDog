@@ -35,6 +35,7 @@ round_dataframe <- function(df, digits = 2){
   return(df)
 }
 
+<<<<<<< HEAD
 create_lead_calendar <- function(n = 5, local = FALSE){
 
   # Create calendar
@@ -81,28 +82,52 @@ create_lead_calendar <- function(n = 5, local = FALSE){
 
 }
 check_cronjob <-function(){
+=======
+check_cronjob <-function(local = FALSE){
+>>>>>>> Add dataframe
 
-  sql_stock = 'SELECT DATE, COUNT(1)
+  ####
+  # SQL for checking
+  ####
+
+  sql.stock = 'SELECT DATE, COUNT(1)
                 FROM STOCK
                 GROUP BY DATE
                 ORDER BY DATE DESC
                 LIMIT 10'
 
-  sql_ccass = 'SELECT DATE, COUNT(1)
+  sql.ccass = 'SELECT DATE, COUNT(1)
               FROM CCASS
               GROUP BY DATE
               ORDER BY DATE DESC
               LIMIT 10'
 
-  sql_option = 'SELECT DATE, COUNT(1)
+  sql.option = 'SELECT DATE, COUNT(1)
                 FROM OPTION
                 GROUP BY DATE
                 ORDER BY DATE DESC
                 LIMIT 10'
-  sql_signal = 'SELECT *
-              FROM SIGNAL_HISTORY
-              ORDER BY DATE DESC
-              LIMIT 10'
+
+  sql.signal = 'SELECT DATE, COUNT(1)
+                FROM SIGNAL_HISTORY
+                GROUP BY DATE
+                ORDER BY DATE DESC
+                LIMIT 10'
+
+  ####
+  # Result dataframe
+  ####
+
+  df.stock  = sql_query(sql.stock,  local)
+  df.ccass  = sql_query(sql.ccass,  local)
+  df.option = sql_query(sql.option, local)
+  df.signal = sql_query(sql.signal, local)
 
 
+  print(head(df.stock))
+  print(head(df.ccass))
+  print(head(df.option))
+  print(head(df.signal))
+
+  return(df.stock)
 }
