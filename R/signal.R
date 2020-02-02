@@ -438,11 +438,8 @@ load_hit_signal <- function(ref.date, format = 'long', option.only = TRUE, local
 
   date.input = lubridate::ymd(ref.date)
 
-  query = sprintf(" SELECT history.*, mapping.signal_label
+  query = sprintf(" SELECT history.*
                      FROM SIGNAL_HISTORY history
-                    	INNER JOIN
-                    		SIGNAL_MAPPING mapping
-                    	ON history.signal = mapping.signal
                      WHERE DATE = '%s' ORDER BY CODE ASC", date.input)
 
   df.raw = sql_query(query, local)
@@ -474,7 +471,7 @@ load_hit_signal <- function(ref.date, format = 'long', option.only = TRUE, local
   }
 
   # Selected columns only
-  df.signal.selected = df.signal[, c('code', 'date', 'signal_label'), with=FALSE]
+  df.signal.selected = df.signal[, c('code', 'date', 'signal'), with=FALSE]
 
   return(df.signal.selected)
 }
