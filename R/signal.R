@@ -478,11 +478,6 @@ load_hit_signal <- function(ref.date, format = 'long', option.only = TRUE, local
 
 get_signal_performance <- function(code, local = FALSE){
 
-<<<<<<< HEAD
-=======
-  local = FALSE
-
->>>>>>> add signal mapping
   # Define threshold
   CONSTANT_THRESHOLD = 0.03
 

@@ -35,7 +35,6 @@ round_dataframe <- function(df, digits = 2){
   return(df)
 }
 
-<<<<<<< HEAD
 create_lead_calendar <- function(n = 5, local = FALSE){
 
   # Create calendar
@@ -81,10 +80,9 @@ create_lead_calendar <- function(n = 5, local = FALSE){
   return(df.calendar.long)
 
 }
-check_cronjob <-function(){
-=======
+
 check_cronjob <-function(local = FALSE){
->>>>>>> Add dataframe
+
 
   ## Return the latest date of records in the cronjob tables
   ##
