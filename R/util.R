@@ -34,3 +34,49 @@ round_dataframe <- function(df, digits = 2){
 
   return(df)
 }
+
+create_lead_calendar <- function(n = 5, local = FALSE){
+
+  # Create calendar
+  df.calendar = tryCatch({
+
+    sql_query("SELECT DISTINCT DATE
+                             FROM STOCK
+                             WHERE CODE = '00001'
+                             ORDER BY DATE DESC", local)
+
+  }, error = function(e){
+    message(e)
+    stop_quietly("No calendar in database")
+
+  })
+
+
+  # Rename column
+  if (n > 0){
+    # Shift by n day
+    df.calendar = df.calendar[, data.table::shift(date, 0:n)]
+    colname = paste0('date_' , 1:n)   # Create column name like date_1, date_2, date_n
+
+  } else{
+
+    # If n = 0, return dataframe with no shift
+    return(df.calendar)
+
+  }
+
+  # Append back the first column (date 0), then rename columns
+  colname = c('date', colname)
+  colnames(df.calendar) = colname
+
+  # To long format, order by date desc
+  df.calendar.long = data.table::as.data.table(reshape2::melt(df.calendar, id.vars = c("date"), value.name = "leading") )
+  df.calendar.long = df.calendar.long[order(-date)]
+
+  # Remove variable column, remove NA in leading column
+  df.calendar.long[, variable := NULL]
+  df.calendar.long = df.calendar.long[!is.na(leading)]
+
+  return(df.calendar.long)
+
+}

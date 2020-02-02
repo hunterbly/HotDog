@@ -76,9 +76,13 @@ db_get_stock <- function(code, local = FALSE){
 db_get_signal_history <- function(code, local = FALSE){
 
   code  = stringr::str_pad(code, 5, pad ='0')
-  sql   = sprintf("SELECT * FROM signal_history WHERE code = '%s'", code)
+  sql   = sprintf("SELECT * FROM signal_history WHERE CODE = '%s' ORDER BY CODE, DATE DESC", code)
   df    = sql_query(sql, local)
+
+  # Remove id column
   if(nrow(df) > 0) {df    = df[, c("id") := NULL]}
+
+
 
   return(df)
 
