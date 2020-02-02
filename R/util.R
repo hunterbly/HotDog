@@ -80,3 +80,29 @@ create_lead_calendar <- function(n = 5, local = FALSE){
   return(df.calendar.long)
 
 }
+check_cronjob <-function(){
+
+  sql_stock = 'SELECT DATE, COUNT(1)
+                FROM STOCK
+                GROUP BY DATE
+                ORDER BY DATE DESC
+                LIMIT 10'
+
+  sql_ccass = 'SELECT DATE, COUNT(1)
+              FROM CCASS
+              GROUP BY DATE
+              ORDER BY DATE DESC
+              LIMIT 10'
+
+  sql_option = 'SELECT DATE, COUNT(1)
+                FROM OPTION
+                GROUP BY DATE
+                ORDER BY DATE DESC
+                LIMIT 10'
+  sql_signal = 'SELECT *
+              FROM SIGNAL_HISTORY
+              ORDER BY DATE DESC
+              LIMIT 10'
+
+
+}
