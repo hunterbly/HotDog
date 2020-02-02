@@ -414,6 +414,68 @@ save_hit_signal <- function(df.signal, local = FALSE){
   return(NULL)
 }
 
+load_hit_signal <- function(ref.date, format = 'long', option.only = TRUE, local = FALSE){
+
+  ## load signal hit history in database. Return all or option only signal with wide or long format
+  ##
+  ## Args:
+  ##  ref.date (str): Date in YYYY-MM-DD format, e.g. 2018-01-01
+  ##  format (str): Wide or Long format of the output, e.g. c('wide', 'long'). Default Long
+  ##  option.only (bool): Specify whether the signal are for option only stocks. Default true
+  ##  local (bool): Boolean flag to indicate whether the connection is using Local or Remote IP
+  ##
+  ## Returns:
+  ##  df.signal (Dataframe): Stock price dataframe with calculated signal in the input date only
+  ##
+  ## Example:
+  ##   load_hit_signal(ref.date = '2020-01-10', option.only = TRUE)
+
+  ####
+  # Logging
+  ####
+  log_args(func = 'load_hit_signal',
+           arg.str = allargs())
+
+  date.input = lubridate::ymd(ref.date)
+
+  query = sprintf(" SELECT history.*
+                     FROM SIGNAL_HISTORY history
+                     WHERE DATE = '%s' ORDER BY CODE ASC", date.input)
+
+  df.raw = sql_query(query, local)
+
+  # Check if there is signal data before joining
+  if(nrow(df.raw) == 0){
+    stop_quietly(sprintf("No data for date %s", ref.date))
+  }
+
+  if(option.only){
+    # Inner join with option list
+    df.option.stock = sql_query('SELECT code FROM option_stock', local)
+    df.signal = merge(df.raw, df.option.stock, by="code", all = FALSE)
+  } else{
+    df.signal = df.raw
+  }
+
+  if(nrow(df.signal) == 0){
+    stop_quietly(sprintf("No data for date %s. Please check the option list as well", date.input))
+  }
+
+  # Handle long/wide format
+  if(format == 'long'){
+    # Do nothing
+  } else if(format == 'wide'){
+    # To be added
+  } else{
+    stop_quietly("Not supported")
+  }
+
+  # Selected columns only
+  df.signal.selected = df.signal[, c('code', 'date', 'signal'), with=FALSE]
+
+  return(df.signal.selected)
+}
+
 get_signal_performance <- function(code, local = FALSE){
 
   # Define threshold

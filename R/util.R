@@ -80,3 +80,71 @@ create_lead_calendar <- function(n = 5, local = FALSE){
   return(df.calendar.long)
 
 }
+
+check_cronjob <-function(local = FALSE){
+
+
+  ## Return the latest date of records in the cronjob tables
+  ##
+  ## Args:
+  ##  local (bool): Boolean flag to indicate whether the connection is using Local or Remote IP
+  ##
+  ## Returns:
+  ##  df.res (Dataframe): Dataframe of latest date of cronjob tables
+  ##
+  ## Example:
+  ##  df.res = check_cronjob(local = FALSE)
+
+  ####
+  # SQL for checking
+  ####
+
+  sql.stock = 'SELECT DATE, COUNT(1)
+                FROM STOCK
+                GROUP BY DATE
+                ORDER BY DATE DESC
+                LIMIT 10'
+
+  sql.ccass = 'SELECT DATE, COUNT(1)
+              FROM CCASS
+              GROUP BY DATE
+              ORDER BY DATE DESC
+              LIMIT 10'
+
+  sql.option = 'SELECT DATE, COUNT(1)
+                FROM OPTION
+                GROUP BY DATE
+                ORDER BY DATE DESC
+                LIMIT 10'
+
+  sql.signal = 'SELECT DATE, COUNT(1)
+                FROM SIGNAL_HISTORY
+                GROUP BY DATE
+                ORDER BY DATE DESC
+                LIMIT 10'
+
+  ####
+  # Result dataframe
+  ####
+
+  df.stock  = sql_query(sql.stock,  local)
+  df.ccass  = sql_query(sql.ccass,  local)
+  df.option = sql_query(sql.option, local)
+  df.signal = sql_query(sql.signal, local)
+
+  # Add back table name
+  df.stock[, table := 'stock']
+  df.ccass[, table := 'ccass']
+  df.option[, table := 'option']
+  df.signal[, table := 'signal']
+
+  # rbind, return first row, reorder column
+  df.combine = do.call("rbind", list(df.stock,
+                                     df.ccass,
+                                     df.option,
+                                     df.signal))
+  df.res = df.combine[, head(.SD, 1), by=table]
+  df.res[, date := as.character(date)]
+
+  return(df.res)
+}
