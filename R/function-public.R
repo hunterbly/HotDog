@@ -4,7 +4,7 @@ GetSignalPerformance <- function(code, local = TRUE){
     
     # Get selected columns
     col.all = colnames(df.performance)
-    col.price = all.col[grepl("day\\.\\d*$", all.col, perl=TRUE)]
+    col.price = col.all[grepl("day\\.\\d*$", col.all, perl=TRUE)]
     col.selected = do.call(c, list(c('date', 'code', 'signal', 'signal_index'),
                                col.price,
                                c('success')))
