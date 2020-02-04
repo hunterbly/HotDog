@@ -487,7 +487,7 @@ get_signal_performance <- function(code, local = FALSE){
   df.signal.strength  = db_get_signal_strength(code, local)
 
   # if any of the data frame is zero
-  if(nrow(df.signal.history) == 0| nrow(df.stock) == 0){
+  if(nrow(df.signal.history) == 0| nrow(df.stock) == 0 | nrow(df.signal.strength) == 0){
     stop_quietly("No records in database")
   }
 
