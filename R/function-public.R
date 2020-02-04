@@ -9,7 +9,7 @@ GetSignalPerformance <- function(code, local = TRUE){
                                col.price,
                                c('success')))
         
-    df.res = df.performance[, col.selected, with = FALSE]
+    df.res = df.performance[, col.selected, with = FALSE][order(code, signal, -date)]
     
     return(df.res)
 }
