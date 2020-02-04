@@ -470,10 +470,7 @@ load_hit_signal <- function(ref.date, format = 'long', option.only = TRUE, local
     stop_quietly("Not supported")
   }
 
-  # Selected columns only
-  df.signal.selected = df.signal[, c('code', 'date', 'signal'), with=FALSE]
-
-  return(df.signal.selected)
+  return(df.signal)
 }
 
 get_signal_performance <- function(code, local = FALSE){
