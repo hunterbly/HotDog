@@ -446,7 +446,20 @@ load_hit_signal <- function(ref.date, format = 'long', option.only = TRUE, local
 
   # Check if there is signal data before joining
   if(nrow(df.raw) == 0){
-    stop_quietly(sprintf("No data for date %s", ref.date))
+
+    # Try yesterday if the result set is empty
+    ref.date.ytd = lubridate::ymd(ref.date) - 1
+    query = sprintf(" SELECT history.*
+                     FROM SIGNAL_HISTORY history
+                     WHERE DATE = '%s' ORDER BY CODE ASC", ref.date.ytd)
+
+    df.raw = sql_query(query, local)
+
+    if(nrow(df.raw) == 0){
+      stop_quietly(sprintf("No data for date %s and %s", ref.date, ref.date.ytd))
+    }
+
+
   }
 
   if(option.only){
