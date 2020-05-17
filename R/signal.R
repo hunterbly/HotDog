@@ -549,5 +549,8 @@ get_signal_performance <- function(code, local = FALSE){
   # Select related columns only
   # res = res[, .()]
 
-  return(res)
+  # Order by latest signal first
+  df.ordered = res[, tmp := max(date), by = .(code, signal)][order(-tmp, -date, signal)][, tmp := NULL]
+
+  return(df.ordered)
 }
