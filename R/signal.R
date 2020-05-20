@@ -483,8 +483,14 @@ load_hit_signal <- function(ref.date, format = 'long', option.only = TRUE, local
     stop_quietly("Not supported")
   }
 
+  # Join with signal index if available
+  df.signal.index = sql_query("SELECT code, value_all as signal_index FROM signal_strength")
+
+  # Left join, signal (left), index(right)
+  df.signal.with.index = merge(df.signal, df.signal.index, by = c("code", "signal"), all.x = TRUE)
+
   # Selected columns only
-  df.signal.selected = df.signal[, c('code', 'date', 'signal'), with=FALSE]
+  df.signal.selected = df.signal[, c('code', 'date', 'signal', 'signal_index'), with=FALSE]
 
   return(df.signal.selected)
 }
