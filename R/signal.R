@@ -485,6 +485,7 @@ load_hit_signal <- function(ref.date, format = 'long', option.only = TRUE, local
 
   # Join with signal index if available
   df.signal.index = sql_query("SELECT code, signal, value_all as signal_index FROM signal_strength")
+  df.signal.index[, code := stringr::str_pad(code, 5, pad = "0")]
 
   # Left join, signal (left), index(right)
   df.signal.with.index = merge(df.signal, df.signal.index, by = c("code", "signal"), all.x = TRUE)
