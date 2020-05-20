@@ -490,7 +490,7 @@ load_hit_signal <- function(ref.date, format = 'long', option.only = TRUE, local
   df.signal.with.index = merge(df.signal, df.signal.index, by = c("code", "signal"), all.x = TRUE)
 
   # Selected columns only
-  df.signal.selected = df.signal[, c('code', 'date', 'signal', 'signal_index'), with=FALSE]
+  df.signal.selected = df.signal.with.index[, c('code', 'date', 'signal', 'signal_index'), with=FALSE]
 
   return(df.signal.selected)
 }
