@@ -511,7 +511,7 @@ get_signal_performance <- function(code, local = FALSE, verbose = FALSE){
   ##
   ## Example:
   ##   get_signal_performance(code = 700, local = FALSE)
-  ##   get_signal_performance(code = 700, local = FALSE, verbose = TRUE)
+  ##   get_signal_performance(code = 700, local = FALSE, verbose = FALSE)
 
 
 
@@ -580,18 +580,16 @@ get_signal_performance <- function(code, local = FALSE, verbose = FALSE){
 
     # Short version (Normal flow)- Python telegram
     res[, `:=`(
-               day.1.return = filter_by_threshold(x = day.1.return, positive = success, threshold = 0.03),
-               day.2.return = filter_by_threshold(x = day.2.return, positive = success, threshold = 0.03),
-               day.3.return = filter_by_threshold(x = day.3.return, positive = success, threshold = 0.03),
-               day.4.return = filter_by_threshold(x = day.4.return, positive = success, threshold = 0.03),
-               day.5.return = filter_by_threshold(x = day.5.return, positive = success, threshold = 0.03)
+               day.1.return = filter_by_threshold(x = round(day.1.return, 4), positive = success, threshold = 0.03),
+               day.2.return = filter_by_threshold(x = round(day.2.return, 4), positive = success, threshold = 0.03),
+               day.3.return = filter_by_threshold(x = round(day.3.return, 4), positive = success, threshold = 0.03),
+               day.4.return = filter_by_threshold(x = round(day.4.return, 4), positive = success, threshold = 0.03),
+               day.5.return = filter_by_threshold(x = round(day.5.return, 4), positive = success, threshold = 0.03)
     ), by = seq_len(nrow(res))] # by each row
 
     return(res)
   }
 
-  # Round return columns
-  res[ , (cols) := lapply(.SD, function(x){round(x, 4)}), .SDcols = c('day.1.return', 'day.2.return', 'day.3.return', 'day.4.return', 'day.5.return')]
 
   # Order by latest signal first
   df.ordered = res[, tmp := max(date), by = .(code, signal)][order(-tmp, -date, signal)][, tmp := NULL]
