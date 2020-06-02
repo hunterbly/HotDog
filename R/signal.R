@@ -496,7 +496,24 @@ load_hit_signal <- function(ref.date, format = 'long', option.only = TRUE, local
   return(df.signal.selected)
 }
 
-get_signal_performance <- function(code, local = FALSE){
+get_signal_performance <- function(code, local = FALSE, verbose = FALSE){
+
+  ## Get historical signal performance
+  ##
+  ## Args:
+  ##  code (num): Code number, e.g. 700
+  ##  local (bool): Boolean flag to indicate whether the connection is using Local or Remote IP
+  ##  verbose (bool): Boolean flag to control whether to return a detailed version or short version of
+  ##                  signal history
+  ##
+  ## Returns:
+  ##  df.ordered (Dataframe):
+  ##
+  ## Example:
+  ##   get_signal_performance(code = 700, local = FALSE)
+  ##   get_signal_performance(code = 700, local = FALSE, verbose = TRUE)
+
+
 
   # Define threshold
   CONSTANT_THRESHOLD = 0.03
