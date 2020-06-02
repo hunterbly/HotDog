@@ -578,19 +578,20 @@ get_signal_performance <- function(code, local = FALSE, verbose = FALSE){
 
   } else {
 
-    # Short version - Python telegram
+    # Short version (Normal flow)- Python telegram
     res[, `:=`(
-               day.1.return = ifelse(direction == 1, high.return.lead.1, low.return.lead.1),
-               day.2.return = ifelse(direction == 1, high.return.lead.2, low.return.lead.2),
-               day.3.return = ifelse(direction == 1, high.return.lead.3, low.return.lead.3),
-               day.4.return = ifelse(direction == 1, high.return.lead.4, low.return.lead.4),
-               day.5.return = ifelse(direction == 1, high.return.lead.5, low.return.lead.5)
-    )]
+               day.1.return = filter_by_threshold(x = day.1.return, positive = success, threshold = 0.03),
+               day.2.return = filter_by_threshold(x = day.2.return, positive = success, threshold = 0.03),
+               day.3.return = filter_by_threshold(x = day.3.return, positive = success, threshold = 0.03),
+               day.4.return = filter_by_threshold(x = day.4.return, positive = success, threshold = 0.03),
+               day.5.return = filter_by_threshold(x = day.5.return, positive = success, threshold = 0.03)
+    ), by = seq_len(nrow(res))] # by each row
+
+    return(res)
   }
 
-
-  # Select related columns only
-  # res = res[, .()]
+  # Round return columns
+  res[ , (cols) := lapply(.SD, function(x){round(x, 4)}), .SDcols = c('day.1.return', 'day.2.return', 'day.3.return', 'day.4.return', 'day.5.return')]
 
   # Order by latest signal first
   df.ordered = res[, tmp := max(date), by = .(code, signal)][order(-tmp, -date, signal)][, tmp := NULL]
