@@ -570,6 +570,25 @@ get_signal_performance <- function(code, local = FALSE, verbose = FALSE){
                                 abs(pmax(day.1.return, day.2.return, day.3.return, day.4.return, day.5.return, na.rm = TRUE)) >= CONSTANT_THRESHOLD,
                                 abs(pmin(day.1.return, day.2.return, day.3.return, day.4.return, day.5.return, na.rm = TRUE)) >= CONSTANT_THRESHOLD)]
 
+  # verbose = FALSE for 'short version' for python call
+  if(verbose){
+
+    # Long version - original outputs
+    # Do nothing
+
+  } else {
+
+    # Short version - Python telegram
+    res[, `:=`(
+               day.1.return = ifelse(direction == 1, high.return.lead.1, low.return.lead.1),
+               day.2.return = ifelse(direction == 1, high.return.lead.2, low.return.lead.2),
+               day.3.return = ifelse(direction == 1, high.return.lead.3, low.return.lead.3),
+               day.4.return = ifelse(direction == 1, high.return.lead.4, low.return.lead.4),
+               day.5.return = ifelse(direction == 1, high.return.lead.5, low.return.lead.5)
+    )]
+  }
+
+
   # Select related columns only
   # res = res[, .()]
 

@@ -148,3 +148,19 @@ check_cronjob <-function(local = FALSE){
 
   return(df.res)
 }
+
+
+filter_by_threshold <- function(x, positive = TRUE, threshold = 0.03){
+
+  if(is.na(x)){
+    return(NA)
+  }
+
+  if(positive == TRUE) {        # Positive signal, e.g. going up
+    res = ifelse(x >= threshold, x, NA)
+  } else {
+    res = ifelse(x <= -threshold, x, NA)
+  }
+
+  return(res)
+}
