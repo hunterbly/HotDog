@@ -150,17 +150,39 @@ check_cronjob <-function(local = FALSE){
 }
 
 
-filter_by_threshold <- function(x, positive = TRUE, threshold = 0.03){
+filter_by_threshold <- function(x, direction = 1, threshold = 0.03){
 
   if(is.na(x)){
     return(NA)
   }
 
-  if(positive == TRUE) {        # Positive signal, e.g. going up
+  if(direction == 1) {          # Positive signal, i.e. going up
     res = ifelse(x >= threshold, x, NA)
-  } else {
+  } else if (direction == -1){  # Negative signal
     res = ifelse(x <= -threshold, x, NA)
+  } else {
+    res = NA
   }
 
   return(res)
+}
+
+get_first_from_list <- function(l){
+
+  ## Get first non-NA numeric value from a list
+  ##
+  ## Args:
+  ##  l (List[num], num): A list of number, e.g. c(NA, NA, 2, 3, 4)
+  ##
+  ## Returns:
+  ##  value (num): First non-NA element from the list
+  ##
+  ## Example:
+  ##  get_first_from_list(c(NA, NA, 3, 4, 5))
+  ##
+
+  l = dplyr::coalesce(l)
+  l = l[!is.na(l)]       # Remove NA from list
+
+  return(l[1])           # Return first element from the list
 }

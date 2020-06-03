@@ -580,11 +580,11 @@ get_signal_performance <- function(code, local = FALSE, verbose = FALSE){
 
     # Short version (Normal flow)- Python telegram
     res[, `:=`(
-               day.1.return = filter_by_threshold(x = round(day.1.return, 4), positive = success, threshold = 0.03),
-               day.2.return = filter_by_threshold(x = round(day.2.return, 4), positive = success, threshold = 0.03),
-               day.3.return = filter_by_threshold(x = round(day.3.return, 4), positive = success, threshold = 0.03),
-               day.4.return = filter_by_threshold(x = round(day.4.return, 4), positive = success, threshold = 0.03),
-               day.5.return = filter_by_threshold(x = round(day.5.return, 4), positive = success, threshold = 0.03)
+               day.1.return = filter_by_threshold(x = round(day.1.return, 4), direction = direction, threshold = 0.03),
+               day.2.return = filter_by_threshold(x = round(day.2.return, 4), direction = direction, threshold = 0.03),
+               day.3.return = filter_by_threshold(x = round(day.3.return, 4), direction = direction, threshold = 0.03),
+               day.4.return = filter_by_threshold(x = round(day.4.return, 4), direction = direction, threshold = 0.03),
+               day.5.return = filter_by_threshold(x = round(day.5.return, 4), direction = direction, threshold = 0.03)
     ), by = seq_len(nrow(res))] # by each row
 
     return(res)
