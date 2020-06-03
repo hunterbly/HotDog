@@ -496,7 +496,24 @@ load_hit_signal <- function(ref.date, format = 'long', option.only = TRUE, local
   return(df.signal.selected)
 }
 
-get_signal_performance <- function(code, local = FALSE){
+get_signal_performance <- function(code, local = FALSE, verbose = FALSE){
+
+  ## Get historical signal performance
+  ##
+  ## Args:
+  ##  code (num): Code number, e.g. 700
+  ##  local (bool): Boolean flag to indicate whether the connection is using Local or Remote IP
+  ##  verbose (bool): Boolean flag to control whether to return a detailed version or short version of
+  ##                  signal history
+  ##
+  ## Returns:
+  ##  df.ordered (Dataframe):
+  ##
+  ## Example:
+  ##   get_signal_performance(code = 700, local = FALSE)
+  ##   get_signal_performance(code = 700, local = FALSE, verbose = FALSE)
+
+
 
   # Define threshold
   CONSTANT_THRESHOLD = 0.03
@@ -553,8 +570,26 @@ get_signal_performance <- function(code, local = FALSE){
                                 abs(pmax(day.1.return, day.2.return, day.3.return, day.4.return, day.5.return, na.rm = TRUE)) >= CONSTANT_THRESHOLD,
                                 abs(pmin(day.1.return, day.2.return, day.3.return, day.4.return, day.5.return, na.rm = TRUE)) >= CONSTANT_THRESHOLD)]
 
-  # Select related columns only
-  # res = res[, .()]
+  # verbose = FALSE for 'short version' for python call
+  if(verbose){
+
+    # Long version - original outputs
+    # Do nothing
+
+  } else {
+
+    # Short version (Normal flow)- Python telegram
+    res[, `:=`(
+               day.1.return = filter_by_threshold(x = round(day.1.return, 4), direction = direction, threshold = 0.03),
+               day.2.return = filter_by_threshold(x = round(day.2.return, 4), direction = direction, threshold = 0.03),
+               day.3.return = filter_by_threshold(x = round(day.3.return, 4), direction = direction, threshold = 0.03),
+               day.4.return = filter_by_threshold(x = round(day.4.return, 4), direction = direction, threshold = 0.03),
+               day.5.return = filter_by_threshold(x = round(day.5.return, 4), direction = direction, threshold = 0.03)
+    ), by = seq_len(nrow(res))] # by each row
+
+    return(res)
+  }
+
 
   # Order by latest signal first
   df.ordered = res[, tmp := max(date), by = .(code, signal)][order(-tmp, -date, signal)][, tmp := NULL]
