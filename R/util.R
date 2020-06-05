@@ -153,15 +153,15 @@ check_cronjob <-function(local = FALSE){
 filter_by_threshold <- function(x, direction = 1, threshold = 0.03){
 
   if(is.na(x)){
-    return(NA)
+    return(NULL)
   }
 
   if(direction == 1) {          # Positive signal, i.e. going up
-    res = ifelse(x >= threshold, x, NA)
+    res = ifelse(x >= threshold, x, NULL)
   } else if (direction == -1){  # Negative signal
-    res = ifelse(x <= -threshold, x, NA)
+    res = ifelse(x <= -threshold, x, NULL)
   } else {
-    res = NA
+    res = NULL
   }
 
   return(res)
