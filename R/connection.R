@@ -1,4 +1,4 @@
-sql_connection <- function(local = FALSE){
+sql_connection <- function(local = FALSE) {
 
   ## Return connection for remote database
   ##
@@ -12,31 +12,32 @@ sql_connection <- function(local = FALSE){
   ##  conn = sql_connection
   ##  DBI::dbDisconnect(conn)
 
-  if(local == TRUE){
-
-    conn <- DBI::dbConnect(drv    = RPostgreSQL::PostgreSQL(),
-                           dbname = "stock",
-                           host   = "localhost",
-                           port   = 4004,
-                           user   = "db_user",
-                           password = 'P@ssw0rDB')
-
-  } else{
+  if (local == TRUE) {
+    conn <- DBI::dbConnect(
+      drv = RPostgreSQL::PostgreSQL(),
+      dbname = "stock",
+      host = "localhost",
+      port = 4004,
+      user = "db_user",
+      password = "P@ssw0rDB"
+    )
+  } else {
     # Remote
-    conn <- DBI::dbConnect(drv    = RPostgreSQL::PostgreSQL(),
-                           dbname = "stock",
-                           host   = "206.189.149.240",
-                           port   = 4004,
-                           user   = "db_user",
-                           password = 'P@ssw0rDB')
-
+    conn <- DBI::dbConnect(
+      drv = RPostgreSQL::PostgreSQL(),
+      dbname = "stock",
+      host = "206.189.149.240",
+      port = 4004,
+      user = "db_user",
+      password = "P@ssw0rDB"
+    )
   }
 
   return(conn)
 }
 
 
-sql_query <- function(sql, local = FALSE){
+sql_query <- function(sql, local = FALSE) {
 
   ## Get data from the provided sql
   ##
@@ -58,59 +59,58 @@ sql_query <- function(sql, local = FALSE){
   DBI::dbDisconnect(conn)
 
   return(res)
-
 }
 
-db_get_stock <- function(code, local = FALSE){
-
-  code  = stringr::str_pad(code, 5, pad ='0')
-  sql   = sprintf("SELECT * FROM stock WHERE code = '%s'", code)
-  df    = sql_query(sql, local)
-  if(nrow(df) > 0) {df    = df[, c("id") := NULL]}
-
-  return(df)
-
-}
-
-
-db_get_signal_history <- function(code, local = FALSE){
-
-  code  = stringr::str_pad(code, 5, pad ='0')
-  sql   = sprintf("SELECT * FROM signal_history WHERE CODE = '%s' ORDER BY CODE, DATE DESC", code)
-  df    = sql_query(sql, local)
-
-  # Remove id column
-  if(nrow(df) > 0) {df    = df[, c("id") := NULL]}
-
-
-
-  return(df)
-
-}
-
-db_get_signal_strength <- function(code, local = FALSE){
-
-  # TODO: Standardize to zfill(5)
-  code  = stringr::str_pad(code, 4, pad ='0')   # Pad to 4 character
-
-  sql   = sprintf("SELECT * FROM signal_strength WHERE code = '%s'", code)
-  df    = sql_query(sql, local)
-
-  if(nrow(df) > 0) {
-
-    df    = df[, c("id") := NULL]
-
-    # pad code column for 5 digit
-    df    = df[, code := stringr::str_pad(code, 5, pad ='0')]
-
-    # Remove value_recent column and and rename value_all to signal_index
-    df    = df[, `:=`(value_recent = NULL,
-                      signal_index = value_all,
-                      value_all    = NULL)]
+db_get_stock <- function(code, local = FALSE) {
+  code <- stringr::str_pad(code, 5, pad = "0")
+  sql <- sprintf("SELECT * FROM stock WHERE code = '%s'", code)
+  df <- sql_query(sql, local)
+  if (nrow(df) > 0) {
+    df <- df[, c("id") := NULL]
   }
 
   return(df)
+}
 
+
+db_get_signal_history <- function(code, local = FALSE) {
+  code <- stringr::str_pad(code, 5, pad = "0")
+  sql <- sprintf("SELECT * FROM signal_history WHERE CODE = '%s' ORDER BY CODE, DATE DESC", code)
+  df <- sql_query(sql, local)
+
+  # Remove id column
+  if (nrow(df) > 0) {
+    df <- df[, c("id") := NULL]
+  }
+
+
+
+  return(df)
+}
+
+db_get_signal_strength <- function(code, local = FALSE) {
+
+  # TODO: Standardize to zfill(5)
+  code <- stringr::str_pad(code, 4, pad = "0") # Pad to 4 character
+
+  sql <- sprintf("SELECT * FROM signal_strength WHERE code = '%s'", code)
+  df <- sql_query(sql, local)
+
+  if (nrow(df) > 0) {
+    df <- df[, c("id") := NULL]
+
+    # pad code column for 5 digit
+    df <- df[, code := stringr::str_pad(code, 5, pad = "0")]
+
+    # Remove value_recent column and and rename value_all to signal_index
+    df <- df[, `:=`(
+      value_recent = NULL,
+      signal_index = value_all,
+      value_all = NULL
+    )]
+  }
+
+  return(df)
 }
 
 
@@ -126,7 +126,7 @@ db_get_signal_strength <- function(code, local = FALSE){
 ####
 
 
-get_pool <- function(){
+get_pool <- function() {
 
   ## Try out
 
@@ -143,7 +143,4 @@ get_pool <- function(){
   #
   # )
   # pool
-
 }
-
-
